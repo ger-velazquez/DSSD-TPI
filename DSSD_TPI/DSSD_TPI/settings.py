@@ -25,10 +25,18 @@ SECRET_KEY = 'django-insecure-7&1@wbi&7#a6ba)6@##n@cp-c55ix5)f11smi2k2#v945%p9e@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
 # Application definition
+ALLOWED_HOSTS=['localhost']
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+     'http://localhost:3000',
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ]
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'DSSD_TPI.urls'
@@ -74,21 +86,21 @@ WSGI_APPLICATION = 'DSSD_TPI.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
-#}
+# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('DB_NAME','dssd'),
-        'USER': os.getenv('DB_USER','postgres'),
-        'PASSWORD': os.getenv('DB_PASSWD','root'),
-        'HOST': os.getenv('DB_HOST','localhost'),
-        'PORT': os.getenv('DB_PORT','5432'),
+        'NAME': os.getenv('DB_NAME', 'dssd'),
+        'USER': os.getenv('DB_USER', 'german'),
+        'PASSWORD': os.getenv('DB_PASSWD', 'german123'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
