@@ -14,6 +14,7 @@ class BonitaService:
         self.token = ''
         self.sessionid = ''
         self.process_id = ''
+        self.case_id = ''
 
     def login(self):
         data = {
@@ -58,3 +59,26 @@ class BonitaService:
         )
 
         self.process_id = res.json()[0].get('id')
+
+    def instantiation(self):
+
+        url = '{}/{}/{}/{}'.format(self.url, 'API/bpm/process', self.process_id, 'instantiation')
+
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
+
+        res = requests.post(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            },
+        )
+
+        self.case_id = res.json().get('caseId')
+
+
