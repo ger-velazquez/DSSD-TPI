@@ -83,21 +83,20 @@ class BonitaService:
 
     def set_variables(self):
 
-        url = '{}/{}'.format(self.url, 'bonita/API/bpm/case')
+        url = '{}/{}'.format(self.url, 'API/bpm/case')
 
-        data = {
-            "processDefinitionId": self.process_id,
-            "variables":[
+        data ={"processDefinitionId":"7339310545755581978",
+                "variables":[
                     {
-                        "nombreDeSociedad":"nombreSociedad",
-                        "value":"Jorgito SA"
+                        "name":"nombreDeSociedad",
+                        "value":"Dato de Prueba SA"
                     },
                     {
                         "name":"estadoInscripcion",
-                        "value": "true"
-                    },
+                        "value":"false"
+                    }
                 ]
-            }
+         }
 
 
         cookies = {
@@ -107,14 +106,39 @@ class BonitaService:
 
         res = requests.post(
             url,
-            data=data,
+            json=data,
             cookies=cookies,
             headers={
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
                 'JSESSIONID': self.sessionid,
                 'X-Bonita-API-Token': self.token
             },
         )
 
-        self.case_id = res
+        return res.status_code
+
+    
+    # def get_human_task(self):
+
+    #     url = '{}/{}'.format(self.url, '/API/bpm/humanTask') 
+
+    #     payload = {'f': 'caseId=3003'}
+
+    #     cookies = {
+    #         'JSESSIONID': self.sessionid,
+    #         'X-Bonita-API-Token': self.token
+    #     }
+
+    #     res = requests.get(
+    #         url,
+    #         cookies=cookies,
+    #         headers={
+    #             "Content-type": "application/json",
+    #             'JSESSIONID': self.sessionid,
+    #             'X-Bonita-API-Token': self.token
+    #         },
+    #         params=payload
+    #     )
+
+    #     self.human_task_id = res.json()[0].get('id')
 
