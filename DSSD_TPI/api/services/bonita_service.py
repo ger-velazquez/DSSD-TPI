@@ -1,15 +1,60 @@
 import requests
+import json
+
 from requests.adapters import Response
 from requests.sessions import Session
 
-def login_bonita():
-    data={'username':'walter.bates','password':'bpm'}
-    request_login_bonita = requests.post(url='http://localhost:8080/bonita/loginservice', data= data)
-    cookies_bonita = dict(request_login_bonita.cookies) 
-    return cookies_bonita
+from django.conf import settings
 
-def get_process_id_bonita(j_session_id, x_bonita_api_token):
-    headers_get = {'JSESSIONID':j_session_id, 'X-Bonita-API-Token':x_bonita_api_token}
-    params={'s':'Proceso%20de%20Inscripcion%20de%20SA'}
-    request_process_bonita = requests.post(url='http://localhost:8080/bonita/loginservice', params=params, data= data)
-    return None
+
+class BonitaService:
+
+    def __init__(self):
+        self.url = settings.BONITA_URL
+        self.token = ''
+        self.sessionid = ''
+        self.process_id = ''
+
+    def login(self):
+        data = {
+            'username': settings.BONITA_USERNAME,
+            'password': settings.BONITA_PASSWORD,
+            }
+
+        url = '{}/{}'.format(self.url, 'loginservice')
+
+        res = requests.post(
+            url,
+            data=data,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        )
+
+        self.sessionid = res.cookies.get('JSESSIONID')
+        self.token = res.cookies.get('X-Bonita-API-Token', '')
+
+
+    def get_process_id(self):
+
+        url = '{}/{}'.format(self.url, 'API/bpm/process')
+
+        payload = {'s': 'Proceso de Inscripcion de SA'}
+
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            },
+            params=payload
+        )
+
+        self.process_id = res.json()[0].get('id')

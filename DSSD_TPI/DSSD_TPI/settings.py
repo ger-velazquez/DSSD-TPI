@@ -146,3 +146,9 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+BONITA_URL = 'http://localhost:8080/bonita'
+
+BONITA_USERNAME = 'walter.bates'
+
+BONITA_PASSWORD = 'bpm'
