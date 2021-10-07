@@ -6,7 +6,8 @@ export interface Props {
   name: string;
   type?: string;
   labelText: string;
-  as?: string; 
+  as?: string;
+  accept?:string; 
   collectionOfContent?: Array<any>;
 }
 
@@ -19,7 +20,7 @@ export class GenericInputForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { name, type, labelText, collectionOfContent, as } = this.props;
+    const { name, type, labelText, collectionOfContent, as, accept } = this.props;
     return (
       <>
         <div>
@@ -29,6 +30,7 @@ export class GenericInputForm extends React.Component<Props, State> {
           as={as? as : null}
           name={name}
           type={type? type : null}
+          accept={accept? accept : null}
         >
           {
             collectionOfContent &&

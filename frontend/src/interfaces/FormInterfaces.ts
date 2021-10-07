@@ -12,15 +12,21 @@ export interface Partner {
   percentageOfContributions: number;
 }
 
+export interface CountryAndState {
+  country: string;
+  state: string;
+}
+
+export type ArrayToBeModifiedKeys = "partners" | "exportLocations"; 
+
 export interface CorporationForm {
   name: string;
   creationDate: Date | null;
   partners: Partner[];
-  statuteOfConformation: string; // save the pdf route in app file system
+  statuteOfConformation: File | null; // save the pdf route in app file system
   legalDomicile: string;
   realDomicile: string;
   legalRepresentative: Partner;
   email: string;
-  country: string;
-  state: string;
+  exportLocations: CountryAndState[];
 }

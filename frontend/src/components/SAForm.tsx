@@ -1,11 +1,12 @@
 import { Formik, Form, Field } from 'formik';
 import * as React from 'react';
-import countryList from 'react-select-country-list';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import { defaultCountries, defaultValuesForForm } from '../constants/FormConstants';
+import { Col, Container, Row } from 'react-bootstrap';
+import { defaultValuesForForm } from '../constants/FormConstants';
 import { CorporationForm, Partner } from '../interfaces/FormInterfaces';
-import { GenericFormSelectValues } from './Generic/GenericFormSelectValues';
 import { GenericInputForm } from './Generic/GenericInputForm';
+import { cloneDeep } from 'lodash';
+import { PartnerFields } from './Generic/PartnerFields';
+import { CountryAndStateFields } from './Generic/CountryAndStateFields';
 
 
 export interface Props { }
@@ -13,29 +14,32 @@ export interface Props { }
 export interface State {
   validated: boolean;
   corporationForm: CorporationForm;
-  collectionOfCountriesField: JSX.Element[];
+  collectionOfExportLocationsField: JSX.Element[];
   collectionOfPartnersField: JSX.Element[];
 }
 
-export class Test extends React.Component<Props, State> {
+export class SAForm extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
     this.state = {
       validated: false,
       corporationForm: defaultValuesForForm,
-      collectionOfCountriesField: [
-        <GenericInputForm
-          as="select"
-          name="country"
-          labelText="Pais de Exportacion"
-          collectionOfContent={defaultCountries}
-        />,
+      collectionOfExportLocationsField: [
+        <CountryAndStateFields
+          index={0}
+          onChange={(event, arrayKey, objectKey, index) => this.customHandleChange(event, arrayKey, objectKey, index)}
+        />
       ],
       collectionOfPartnersField: [
-
+        <PartnerFields
+          index={0}
+          onChange={(event, arrayKey, objectKey, index) => this.customHandleChange(event, arrayKey, objectKey, index)}
+        />
       ]
     }
+
+    this.customHandleChange = this.customHandleChange.bind(this);
   }
 
   addMediaContent(form: CorporationForm) {
@@ -44,6 +48,31 @@ export class Test extends React.Component<Props, State> {
 
   componentDidMount() {
 
+  }
+
+  // arrayKey could be for partner or country locations
+  // objectKey could be any key of the form objects
+  // index corresponds to the position in the respective array
+
+  handleValidations(values: CorporationForm) {
+    let objectOfErrors = {};
+    const mandatoryFields: Array<string> = ["name", "creationDate", "statuteOfConformation", "legalDomicile", "realDomicile", "legalRepresentative", "email"];
+    mandatoryFields.forEach((field: string) => {
+      if (!(values as any)[field]) {
+        (objectOfErrors as any)[field] = "Required"
+      }
+    })
+
+    return objectOfErrors
+  }
+
+  customHandleChange(event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) {
+    let formToBeUpdated = cloneDeep(this.state.corporationForm);
+    (formToBeUpdated as any)[arrayKey][index][objectKey] = event.target.value;
+
+    this.setState({
+      corporationForm: formToBeUpdated,
+    })
   }
 
 
@@ -59,6 +88,7 @@ export class Test extends React.Component<Props, State> {
           <Formik
             initialValues={defaultValuesForForm}
             onSubmit={(form) => this.addMediaContent(form)}
+            validate={(values) => this.handleValidations(values)}
           >
             <Form>
               <Row className="mb-3">
@@ -107,7 +137,7 @@ export class Test extends React.Component<Props, State> {
                 <Col md="6" sm="12" >
 
                   {
-                    this.state.collectionOfCountriesField.map((countryField: JSX.Element) => {
+                    this.state.collectionOfExportLocationsField.map((countryField: JSX.Element) => {
                       return (
                         <div className="mb-2">
                           {countryField}
@@ -119,6 +149,25 @@ export class Test extends React.Component<Props, State> {
 
                 <Col md="6" sm="12" >
 
+                  <div className="d-flex flex-row justify-content-center" style={{ fontSize: '1.25em', fontWeight: 800 }}>
+                    <div>
+                      Socios
+                    </div>
+                    <div>
+
+                    </div>
+
+                  </div>
+
+                  {
+                    this.state.collectionOfPartnersField.map((countryField: JSX.Element) => {
+                      return (
+                        <div className="mb-2">
+                          {countryField}
+                        </div>
+                      )
+                    })
+                  }
                 </Col>
               </Row>
 
@@ -129,6 +178,19 @@ export class Test extends React.Component<Props, State> {
                     name="email"
                     type="text"
                     labelText="Email"
+                  />
+
+                </Col>
+              </Row>
+
+              <Row className="mb-3">
+                <Col md="6" sm="12" >
+
+                  <GenericInputForm
+                    name="statuteOfConformation"
+                    type="file"
+                    accept=".pdf"
+                    labelText="Estatuto de conformacion"
                   />
 
                 </Col>
