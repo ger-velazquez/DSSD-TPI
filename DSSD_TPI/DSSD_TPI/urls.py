@@ -17,12 +17,15 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from api import views
+from api.urls import api_urls
+
+app_name = "dssd"
 
 router = routers.DefaultRouter()
 router.register(r'associates', views.AssociateView, 'associate')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include(api_urls)),
 ]
 

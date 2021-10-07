@@ -33,7 +33,9 @@ class BonitaService:
         )
 
         self.sessionid = res.cookies.get('JSESSIONID')
-        self.token = res.cookies.get('X-Bonita-API-Token', '')
+        self.token = res.cookies.get('X-Bonita-API-Token')
+
+        return True
 
 
     def get_process_id(self):
@@ -81,21 +83,13 @@ class BonitaService:
 
         self.case_id = res.json().get('caseId')
 
-    def set_variables(self):
+    def set_variables(self, vars):
 
         url = '{}/{}'.format(self.url, 'API/bpm/case')
 
-        data ={"processDefinitionId":"7339310545755581978",
-                "variables":[
-                    {
-                        "name":"nombreDeSociedad",
-                        "value":"Dato de Prueba SA"
-                    },
-                    {
-                        "name":"estadoInscripcion",
-                        "value":"false"
-                    }
-                ]
+        data ={
+            "processDefinitionId": self.process_id,
+            "variables": vars
          }
 
 
