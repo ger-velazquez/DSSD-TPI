@@ -11,7 +11,23 @@ from django.conf import settings
 class BonitaProcessView(APIView):
 
     def post(self, request):
-        #prueba = self.request.data.get('prueba')
+        print("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        print (self.request.data.get('name'))
+        print(self.request.data)
+        first_name = self.request.data.get('firstName')
+        last_name = self.request.data.get('lastName')
+        percentage = self.request.data.get('percentageOfContributions')
+        country = self.request.data.get('country')
+        state = self.request.data.get('state')
+        name = self.request.data.get('name')
+        creation_date = self.request.data.get('creationDate')
+        partners = self.request.data.get('partners')
+        statute = self.request.data.get('statuteOfConformation')
+        legal_address = self.request.data.get('legalDomicile')
+        real_address = self.request.data.get('realDomicile')
+        legalRepresentative = self.request.data.get('legal_representative')
+        email = self.request.data.get('email')
+        exports = self.request.data.get('exportLocations')
 
         try:
             bonita = BonitaService()

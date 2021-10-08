@@ -1,12 +1,12 @@
 from django.conf.urls import url
 
-from api.services.api import (
+from bonita.api import (
     BonitaProcessView,
 )
 
-app_name = "api"
+app_name = "bonita"
 
-api_urls = [
+bonita_urls = [
     url(
         r'^process$',
         BonitaProcessView.as_view(),
