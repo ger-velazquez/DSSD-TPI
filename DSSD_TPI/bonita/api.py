@@ -11,7 +11,7 @@ from django.conf import settings
 class BonitaProcessView(APIView):
 
     def post(self, request):
-        #prueba = self.request.data.get('prueba')
+        prueba = self.request.data.get('prueba')
 
         try:
             bonita = BonitaService()
