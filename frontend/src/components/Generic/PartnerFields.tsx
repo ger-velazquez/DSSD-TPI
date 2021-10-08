@@ -25,11 +25,8 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"firstName"}> Nombre </label>
           </div>
           <Field
-            name="firstName"
+            name={`partners[${index}][firstName]`}
             type="text"
-            onBlur={
-              (event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, 'partners', 'firstName', index)
-            }
           />
         </div>
 
@@ -39,11 +36,8 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"lastName"}> Apellido </label>
           </div>
           <Field
-            name="lastName"
+            name={`partners[${index}][lastName]`}
             type="text"
-            onBlur={
-              (event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, 'partners', 'lastName', index)
-            }
           />
         </div>
 
@@ -52,11 +46,8 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"percentageOfContributions"}> Porcentaje de Contribucion </label>
           </div>
           <Field
-            name="percentageOfContributions"
+            name={`partners[${index}][percentageOfContributions]`}
             type="number"
-            onBlur={
-              (event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, 'partners', 'percentageOfContributions', index)
-            }
           />
         </div>
 

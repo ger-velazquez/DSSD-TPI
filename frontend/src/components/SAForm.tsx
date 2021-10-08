@@ -2,11 +2,12 @@ import { Formik, Form, Field } from 'formik';
 import * as React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { defaultValuesForForm } from '../constants/FormConstants';
-import { CorporationForm, Partner } from '../interfaces/FormInterfaces';
+import { CorporationForm, DynamicCollections, DynamicFieldsOperations, Partner } from '../interfaces/FormInterfaces';
 import { GenericInputForm } from './Generic/GenericInputForm';
 import { cloneDeep } from 'lodash';
 import { PartnerFields } from './Generic/PartnerFields';
 import { CountryAndStateFields } from './Generic/CountryAndStateFields';
+import { GenericInputHeaderField } from './Generic/GenericInputHeaderField';
 
 
 export interface Props { }
@@ -40,13 +41,13 @@ export class SAForm extends React.Component<Props, State> {
     }
 
     this.customHandleChange = this.customHandleChange.bind(this);
+    this.addMediaContent = this.addMediaContent.bind(this);
   }
 
   addMediaContent(form: CorporationForm) {
+    console.log("llegue");
 
-  }
-
-  componentDidMount() {
+    console.log(form);
 
   }
 
@@ -66,6 +67,50 @@ export class SAForm extends React.Component<Props, State> {
     return objectOfErrors
   }
 
+  handleAdditionalFields(typeOfDynamicField: DynamicCollections, operation: DynamicFieldsOperations) {
+
+    let currentCollection: JSX.Element[] = [... this.state[typeOfDynamicField]];
+    if (operation == DynamicFieldsOperations.add) {
+
+      const dynamicCollectionOfComponents = {
+        "collectionOfPartnersField": (
+          <PartnerFields
+            key={currentCollection.length}
+            index={currentCollection.length}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) => this.customHandleChange(event, arrayKey, objectKey, index)}
+          />
+        ),
+        "collectionOfExportLocationsField": (
+          <CountryAndStateFields
+            key={currentCollection.length}
+            index={currentCollection.length}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) => this.customHandleChange(event, arrayKey, objectKey, index)}
+          />
+        )
+      }
+
+      currentCollection.push(dynamicCollectionOfComponents[typeOfDynamicField]);
+
+    }
+    else {
+      currentCollection.pop();
+    }
+
+    if (DynamicCollections.collectionOfPartnersField == typeOfDynamicField) {
+
+      this.setState({
+        collectionOfPartnersField: currentCollection,
+      })
+    }
+    else {
+      this.setState({
+        collectionOfExportLocationsField: currentCollection,
+      })
+    }
+  }
+
+
+
   customHandleChange(event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) {
     let formToBeUpdated = cloneDeep(this.state.corporationForm);
     (formToBeUpdated as any)[arrayKey][index][objectKey] = event.target.value;
@@ -77,7 +122,8 @@ export class SAForm extends React.Component<Props, State> {
 
 
   render() {
-
+    const partnersLength: number = this.state.collectionOfPartnersField.length;
+    const locationsLength: number = this.state.collectionOfExportLocationsField.length;
 
     return (
       <>
@@ -88,7 +134,7 @@ export class SAForm extends React.Component<Props, State> {
           <Formik
             initialValues={defaultValuesForForm}
             onSubmit={(form) => this.addMediaContent(form)}
-            validate={(values) => this.handleValidations(values)}
+          // validate={(values) => this.handleValidations(values)}
           >
             <Form>
               <Row className="mb-3">
@@ -136,49 +182,65 @@ export class SAForm extends React.Component<Props, State> {
               <Row className="mb-3">
                 <Col md="6" sm="12" >
 
-                  {
-                    this.state.collectionOfExportLocationsField.map((countryField: JSX.Element) => {
-                      return (
-                        <div className="mb-2">
-                          {countryField}
-                        </div>
-                      )
-                    })
-                  }
-                </Col>
+                  <GenericInputForm
+                    name="email"
+                    type="text"
+                    labelText="Email"
+                  />
 
-                <Col md="6" sm="12" >
-
-                  <div className="d-flex flex-row justify-content-center" style={{ fontSize: '1.25em', fontWeight: 800 }}>
-                    <div>
-                      Socios
-                    </div>
-                    <div>
-
-                    </div>
-
-                  </div>
-
-                  {
-                    this.state.collectionOfPartnersField.map((countryField: JSX.Element) => {
-                      return (
-                        <div className="mb-2">
-                          {countryField}
-                        </div>
-                      )
-                    })
-                  }
                 </Col>
               </Row>
 
               <Row className="mb-3">
                 <Col md="6" sm="12" >
 
-                  <GenericInputForm
-                    name="email"
-                    type="text"
-                    labelText="Email"
-                  />
+                  <div >
+                    <div className="d-flex justify-content-center">
+                      <GenericInputHeaderField
+                        typeOfDynamicField={DynamicCollections.collectionOfExportLocationsField}
+                        title="Zonas de Exportacion"
+                        currentAmountOfItems={locationsLength}
+                        handleAdditionalFields={(typeOfDynamicField: DynamicCollections, operation: DynamicFieldsOperations) => this.handleAdditionalFields(typeOfDynamicField, operation)}
+                      />
+                    </div>
+                    {
+                      this.state.collectionOfExportLocationsField.map((countryField: JSX.Element) => {
+                        return (
+                          <div className="mb-2">
+                            {countryField}
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+
+                </Col>
+
+                <Col md="6" sm="12" >
+
+                  <div >
+                    <div className="d-flex justify-content-center">
+                      <GenericInputHeaderField
+                        typeOfDynamicField={DynamicCollections.collectionOfPartnersField}
+                        title="Socios"
+                        currentAmountOfItems={partnersLength}
+                        handleAdditionalFields={(typeOfDynamicField: DynamicCollections, operation: DynamicFieldsOperations) => this.handleAdditionalFields(typeOfDynamicField, operation)}
+                      />
+                    </div>
+                    <div>
+                      {
+                        this.state.collectionOfPartnersField.map((countryField: JSX.Element) => {
+                          return (
+                            <div className="mb-2">
+                              {countryField}
+                            </div>
+                          )
+                        })
+                      }
+                    </div>
+
+                  </div>
+
 
                 </Col>
               </Row>
@@ -200,6 +262,7 @@ export class SAForm extends React.Component<Props, State> {
                 <div>
                   <button type="submit"> Cargar </button>
                 </div>
+                
 
               </Row>
 

@@ -19,7 +19,7 @@ export class CountryAndStateFields extends React.Component<Props, State> {
 
   render() {
     const { index } = this.props;
-
+    // 
     return (
       <>
         <div>
@@ -27,11 +27,8 @@ export class CountryAndStateFields extends React.Component<Props, State> {
             <label htmlFor={"country"}> Pais donde Exporta </label>
           </div>
           <Field
-            name="country"
+            name={`exportLocations[${index}][country] `}
             as='select'
-            onBlur={
-              (event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, 'exportLocations', 'country', index)
-            }
           >
             <GenericFormSelectValues
               collectionOfContent={defaultCountries}
@@ -45,11 +42,8 @@ export class CountryAndStateFields extends React.Component<Props, State> {
             <label htmlFor={"state"}> Estado donde Exporta </label>
           </div>
           <Field
-            name="state"
+            name={`exportLocations[${index}][state]`}
             type="text"
-            onBlur={
-              (event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, 'exportLocations', 'state', index)
-            }
           />
         </div>
 

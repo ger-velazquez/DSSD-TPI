@@ -6,6 +6,16 @@ export enum HTMLInputType {
   select = "select"
 }
 
+export enum DynamicFieldsOperations {
+  add = "add",
+  delete = "delete",
+}
+
+export enum DynamicCollections {
+  collectionOfExportLocationsField = "collectionOfExportLocationsField",
+  collectionOfPartnersField = "collectionOfPartnersField"
+}
+
 export interface Partner {
   firstName: string;
   lastName: string;
