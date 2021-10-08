@@ -6,13 +6,6 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
-    
-    @classmethod
-    def create(cls, name):
-        country = cls.objects.create(
-            name=name,
-        )
-        return country
 
 
 class Status(models.Model):
@@ -33,8 +26,6 @@ class AnonymousSociety(models.Model):
 
     def __str__(self):
         return self.name
-
-    
 
 
 class SocietyRegistration(models.Model):
