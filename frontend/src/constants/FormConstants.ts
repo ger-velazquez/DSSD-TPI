@@ -10,24 +10,13 @@ export let defaultPartner: Partner = {
 export let defaultValuesForForm: CorporationForm = {
   name: "",
   creationDate: null,
-  partners: [
-    {
-      firstName: "",
-      lastName: "",
-      percentageOfContributions: 0,
-    }
-  ],
+  partners: [],
   statuteOfConformation: null, // save the pdf route in app file system
   legalDomicile: "",
   realDomicile: "",
   legalRepresentative: defaultPartner,
   email: "",
-  exportLocations: [
-    {
-      country: "",
-      state: "",
-    }
-  ]
+  exportLocations: [],
 }
 
 export const defaultCountries: Array<string> = countryList().getLabels();

@@ -1,13 +1,9 @@
 import { Field } from 'formik';
 import * as React from 'react';
 import { defaultCountries } from '../../constants/FormConstants';
-import { CorporationForm } from '../../interfaces/FormInterfaces';
 import { GenericFormSelectValues } from './GenericFormSelectValues';
 
-export interface Props {
-  index: number;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) => void;
-}
+export interface Props { }
 
 export interface State { }
 
@@ -18,7 +14,6 @@ export class CountryAndStateFields extends React.Component<Props, State> {
   }
 
   render() {
-    const { index } = this.props;
     // 
     return (
       <>
@@ -27,7 +22,7 @@ export class CountryAndStateFields extends React.Component<Props, State> {
             <label htmlFor={"country"}> Pais donde Exporta </label>
           </div>
           <Field
-            name={`exportLocations[${index}][country] `}
+            name={`country`}
             as='select'
           >
             <GenericFormSelectValues
@@ -36,13 +31,12 @@ export class CountryAndStateFields extends React.Component<Props, State> {
           </Field>
         </div>
 
-
         <div>
           <div>
             <label htmlFor={"state"}> Estado donde Exporta </label>
           </div>
           <Field
-            name={`exportLocations[${index}][state]`}
+            name={`state`}
             type="text"
           />
         </div>

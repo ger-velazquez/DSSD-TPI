@@ -1,11 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import { SAForm } from './components/SAForm';
+import { SAFormV2 } from './components/SAFormV2';
 
 function App() {
   return (
     <div className="App">
-      <SAForm />
+      {/* <SAForm /> */}
+      <SAFormV2/>
     </div>
   );
 }

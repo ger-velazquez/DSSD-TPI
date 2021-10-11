@@ -1,5 +1,6 @@
 import { Field } from 'formik';
 import * as React from 'react';
+import { CorporationForm } from '../../interfaces/FormInterfaces';
 import { GenericFormSelectValues } from './GenericFormSelectValues';
 
 export interface Props {
@@ -9,6 +10,7 @@ export interface Props {
   as?: string;
   accept?:string; 
   collectionOfContent?: Array<any>;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>, formKey: string) => void;
 }
 
 export interface State { }
@@ -22,7 +24,7 @@ export class GenericInputForm extends React.Component<Props, State> {
   render() {
     const { name, type, labelText, collectionOfContent, as, accept } = this.props;
     return (
-      <>
+      <div className="mb-3">
         <div>
           <label htmlFor={name}> {labelText} </label>
         </div>
@@ -31,6 +33,7 @@ export class GenericInputForm extends React.Component<Props, State> {
           name={name}
           type={type? type : null}
           accept={accept? accept : null}
+          onKeyUp={(event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, name)}
         >
           {
             collectionOfContent &&
@@ -40,7 +43,7 @@ export class GenericInputForm extends React.Component<Props, State> {
           }
 
         </Field>
-      </>
+      </div>
     );
   }
 

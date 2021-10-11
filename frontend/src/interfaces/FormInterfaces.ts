@@ -11,9 +11,18 @@ export enum DynamicFieldsOperations {
   delete = "delete",
 }
 
+export interface ModalConfiguration {
+  show: boolean;
+  collectionKey: DynamicCollections;
+  specificForm: JSX.Element;
+  initialValues: InitialValuesToCollectionsModal;
+  title: string;
+  validations?: Array<Function>;
+}
+
 export enum DynamicCollections {
-  collectionOfExportLocationsField = "collectionOfExportLocationsField",
-  collectionOfPartnersField = "collectionOfPartnersField"
+  exportLocations = "exportLocations",
+  partners = "partners"
 }
 
 export interface Partner {
@@ -27,12 +36,16 @@ export interface CountryAndState {
   state: string;
 }
 
+export type InitialValuesToCollectionsModal = Partner | CountryAndState;
+
+export type OnSubmitToTheCollection = (values: InitialValuesToCollectionsModal, collectionType: DynamicCollections) => void;
+
 export type ArrayToBeModifiedKeys = "partners" | "exportLocations"; 
 
 export interface CorporationForm {
   name: string;
   creationDate: Date | null;
-  partners: Partner[];
+  partners: Array<Partner>;
   statuteOfConformation: File | null; // save the pdf route in app file system
   legalDomicile: string;
   realDomicile: string;

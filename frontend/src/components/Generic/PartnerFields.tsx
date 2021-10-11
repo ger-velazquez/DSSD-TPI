@@ -2,10 +2,7 @@ import { Field } from 'formik';
 import * as React from 'react';
 import { CorporationForm } from '../../interfaces/FormInterfaces';
 
-export interface Props {
-  index: number;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>, arrayKey: keyof CorporationForm, objectKey: string, index: number) => void;
-}
+export interface Props { }
 
 export interface State { }
 
@@ -16,7 +13,6 @@ export class PartnerFields extends React.Component<Props, State> {
   }
 
   render() {
-    const { index } = this.props;
 
     return (
       <>
@@ -25,7 +21,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"firstName"}> Nombre </label>
           </div>
           <Field
-            name={`partners[${index}][firstName]`}
+            name={`firstName`}
             type="text"
           />
         </div>
@@ -36,7 +32,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"lastName"}> Apellido </label>
           </div>
           <Field
-            name={`partners[${index}][lastName]`}
+            name={`lastName`}
             type="text"
           />
         </div>
@@ -46,7 +42,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"percentageOfContributions"}> Porcentaje de Contribucion </label>
           </div>
           <Field
-            name={`partners[${index}][percentageOfContributions]`}
+            name={`percentageOfContributions`}
             type="number"
           />
         </div>
