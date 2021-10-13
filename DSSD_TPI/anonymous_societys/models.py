@@ -1,18 +1,23 @@
 from django.db import models
 
-
 class Country(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
     @classmethod
     def create(cls, name):
-        country = cls.objects.create(
-            name=name,
-        )
-        return country
+
+        country = cls.objects.filter(name=name)
+
+        if country.exists():
+            return country[0]
+        else:
+            country = cls.objects.create(
+                name=name,
+            )
+            return country
 
 
 class Status(models.Model):
@@ -31,8 +36,8 @@ class Status(models.Model):
 
 class AnonymousSociety(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    date_created = models.DateField(auto_now_add=True)
-    statute = models.FileField()
+    date_created = models.DateField()
+    statute = models.FileField(upload_to='uploads/', null=True)
     real_address = models.CharField(max_length=255)
     legal_address = models.CharField(max_length=255)
     legal_representative = models.ForeignKey('Associate', null=True, on_delete=models.CASCADE)
@@ -42,32 +47,33 @@ class AnonymousSociety(models.Model):
         return self.name
 
     @classmethod
-    def create(cls, name, statute, real_address, legal_address, email, legal_representative = None):
+    def create(cls, name, real_address, legal_address, email, date_created, statute = None, legal_representative = None):
         a_society = cls.objects.create(
             name=name,
-            statute=statute,
             real_address=real_address,
             legal_address=legal_address,
             email=email,
+            date_created = date_created,
+            statute = statute,
             legal_representative =legal_representative
         )
         return a_society
 
 
 class SocietyRegistration(models.Model):
-    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE)
-    status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    due_date = models.DateField()
-    observation = models.CharField(max_length=255)
-    file_number = models.CharField(max_length=255)
+    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE, null=True)
+    status = models.ForeignKey(Status, default=1, on_delete=models.CASCADE)
+    due_date = models.DateField(null=True)
+    observation = models.CharField(max_length=255, null=True)
+    file_number = models.CharField(max_length=255, null=True)
+    date_created = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.anonymous_society) + ' -- ' + str(self.status)
 
     @classmethod
-    def create(cls, status, due_date, observation, file_number, anonymous_society=None):
+    def create(cls, anonymous_society=None):
         society_re = cls.objects.create(
-            status=status,
-            due_date=due_date,
-            observation=observation,
-            file_number=file_number,
             anonymous_society=anonymous_society
         )
         return society_re
@@ -99,10 +105,16 @@ class Export(models.Model):
     state = models.CharField(max_length=255)
     anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return str(self.country) + ' -- ' + str(self.anonymous_society)
+
     @classmethod
     def create(cls, country, state, anonymous_society=None):
+
+        c = Country.create(country)
+
         export = cls.objects.create(
-            country=country,
+            country=c,
             state=state,
             anonymous_society=anonymous_society
         )

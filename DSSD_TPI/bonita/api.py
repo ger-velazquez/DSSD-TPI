@@ -4,14 +4,58 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .bonita_service import BonitaService
-
+from anonymous_societys.models import *
 from django.conf import settings
+
+import base64
+from django.core.files.base import ContentFile
 
 
 class BonitaProcessView(APIView):
 
     def post(self, request):
-        prueba = self.request.data.get('prueba')
+
+        anon = AnonymousSociety.create(
+            name = self.request.data['form']['name'],
+            real_address = self.request.data['form']['realDomicile'],
+            legal_address = self.request.data['form']['legalDomicile'],
+            email = self.request.data['form']['email'],
+            # format day YYYY-MM-DD
+            date_created = self.request.data['form']['creationDate'],
+        )
+
+        society_re = SocietyRegistration.create(
+            anonymous_society=anon
+        )
+
+        statute_base64 = self.request.data['form']['statuteOfConformation']
+        format, pdfstr = statute_base64.split(';base64,')
+        ext = format.split('/')[-1]
+
+        data = ContentFile(base64.b64decode(pdfstr))  
+        file_name = "'statute." + ext
+        anon.statute.save(file_name, data, save=True)
+
+
+        
+        for a in self.request.data['form']['partners']:
+            associate = Associate.create(
+                name=a['firstName'],
+                last_name=a['lastName'],
+                percentage=a['percentageOfContributions'],
+                society_registration=society_re
+            )
+            if a['legal'] == "true":
+                anon.legal_representative = associate
+                anon.save()
+        
+        for e in self.request.data['form']['exportLocations']:
+             export = Export.create(
+                 country=e['country'],
+                 state=e['state'],
+                 anonymous_society=anon
+            )
+
 
         try:
             bonita = BonitaService()
@@ -22,9 +66,10 @@ class BonitaProcessView(APIView):
 
                 bonita.get_process_id()
 
+                print (society_re.id)
+
                 bonita_set_variables = bonita.set_variables([
-                    {"name":"nombreDeSociedad", "value":"Dato de Prueba SA"},
-                    {"name":"estadoInscripcion","value":"false"}
+                    {"name":"idSolicitudSociedad","value": society_re.id}
                 ])
 
                 if bonita_set_variables == 200:

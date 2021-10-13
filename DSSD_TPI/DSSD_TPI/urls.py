@@ -19,6 +19,10 @@ from rest_framework import routers
 from bonita import views
 from bonita.urls import bonita_urls
 
+from django.conf import settings
+from django.conf.urls.static import static
+
+
 app_name = "dssd"
 
 #router = routers.DefaultRouter()
@@ -27,5 +31,5 @@ app_name = "dssd"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(bonita_urls)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
