@@ -29,6 +29,7 @@ export interface Partner {
   firstName: string;
   lastName: string;
   percentageOfContributions: number;
+  isLegalRepresentative?: boolean
 }
 
 export interface CountryAndState {
@@ -46,10 +47,10 @@ export interface CorporationForm {
   name: string;
   creationDate: Date | null;
   partners: Array<Partner>;
-  statuteOfConformation: File | null; // save the pdf route in app file system
+  statuteOfConformation: string | ArrayBuffer | null; // save the pdf route in app file system
   legalDomicile: string;
   realDomicile: string;
-  legalRepresentative: Partner;
+  legalRepresentative: string;
   email: string;
   exportLocations: CountryAndState[];
 }

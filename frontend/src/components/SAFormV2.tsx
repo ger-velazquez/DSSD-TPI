@@ -11,6 +11,9 @@ import { GenericInputHeaderField } from './Generic/GenericInputHeaderField';
 import HttpClient from '../services/HttpClient';
 import { AddElementToCollectionModal } from './AddElementToCollectionModal';
 import GeneralUtils from '../Utils/GeneralUtils';
+import { GenericInputFormWithOnChange } from './Generic/GenericInputFormWithOnChange';
+import FileUtils from '../Utils/FileUtils';
+import { GenericFormSelectValues } from './Generic/GenericFormSelectValues';
 
 
 export interface Props { }
@@ -20,7 +23,6 @@ export interface State {
   corporationForm: CorporationForm;
   modalConfiguration: ModalConfiguration;
 }
-//dv
 export class SAFormV2 extends React.Component<Props, State> {
 
   constructor(props: Props) {
@@ -45,8 +47,23 @@ export class SAFormV2 extends React.Component<Props, State> {
     this.deleteElementInCollection = this.deleteElementInCollection.bind(this);
   }
 
+  setLegalRepresentative(partners: Partner[], legalRepresentative: string): Partner[] {
+    let updatedPartners = cloneDeep(partners);
+    updatedPartners.forEach((partner: Partner) => {
+      let partnerName: string = `${partner.firstName} ${partner.lastName}`
+      if (partnerName === legalRepresentative) {
+        partner.isLegalRepresentative = true;
+      }
+    })
+
+    return updatedPartners;
+  }
+
   async addMediaContent(form: CorporationForm) {
     const formData: CorporationForm = cloneDeep(this.state.corporationForm);
+    formData.partners = this.setLegalRepresentative(formData.partners, form.legalRepresentative);
+    console.log(formData);
+
     const response = await HttpClient.post(
       "api/process",
       {
@@ -55,10 +72,6 @@ export class SAFormV2 extends React.Component<Props, State> {
     )
 
   }
-
-  // formKey could be for partner or country locations
-  // objectKey could be any key of the form objects
-  // index corresponds to the position in the respective array
 
   handleValidations(values: CorporationForm) {
     let objectOfErrors = {};
@@ -80,7 +93,7 @@ export class SAFormV2 extends React.Component<Props, State> {
       corporationForm: currentForm
     })
   }
-  
+
   handleAdditionalFields(values: InitialValuesToCollectionsModal, collectionType: DynamicCollections) { // TODO: Refactor this 
     let currentForm = cloneDeep(this.state.corporationForm);
     ((currentForm as any)[collectionType] as Array<any>).push(values)
@@ -102,6 +115,22 @@ export class SAFormV2 extends React.Component<Props, State> {
     })
   }
 
+  async handleFile(event: React.ChangeEvent<HTMLInputElement>, formKey: string) {
+    console.log(event.target.files![0]);
+    const toBase64 = (file: File): Promise<string | ArrayBuffer> => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve((reader.result as any));
+      reader.onerror = error => reject(error);
+    });
+    const file: string | ArrayBuffer = await (toBase64 as any)(event.target.files![0]);
+    let updatedForm: CorporationForm = cloneDeep(this.state.corporationForm);
+    updatedForm.statuteOfConformation = file;
+    this.setState({
+      corporationForm: updatedForm,
+    })
+  }
+
   customHandleChange(event: React.ChangeEvent<HTMLInputElement>, formKey: string) {
     let formToBeUpdated = cloneDeep(this.state.corporationForm);
     (formToBeUpdated as any)[formKey] = event.target.value;
@@ -118,7 +147,7 @@ export class SAFormV2 extends React.Component<Props, State> {
 
     if (collectionKey == DynamicCollections.partners) {
       specificForm = (
-        <PartnerFields/>
+        <PartnerFields />
       )
       initialValues = {
         firstName: "",
@@ -129,7 +158,7 @@ export class SAFormV2 extends React.Component<Props, State> {
     }
     else {
       specificForm = (
-        <CountryAndStateFields/>
+        <CountryAndStateFields />
       )
       initialValues = {
         country: "",
@@ -148,13 +177,13 @@ export class SAFormV2 extends React.Component<Props, State> {
       modalConfiguration
     })
   }
-  
+
   getPartnersOptions(): string[] {
-    return this.state.corporationForm.partners ? this.state.corporationForm.partners.map( (p) => `${p.firstName} ${p.lastName}` ) : []; 
+    return this.state.corporationForm.partners ? this.state.corporationForm.partners.map((p) => `${p.firstName} ${p.lastName}`) : [];
   }
 
   render() {
-    const partnersOptions: string[]= this.getPartnersOptions()
+    const partnersOptions: string[] = this.getPartnersOptions()
     return (
       <>
         <Container className="mt-4">
@@ -164,7 +193,7 @@ export class SAFormV2 extends React.Component<Props, State> {
           <Formik
             initialValues={defaultValuesForForm}
             onSubmit={(form) => this.addMediaContent(form)}
-            // validate={(values) => this.handleValidations(values)}
+          // validate={(values) => this.handleValidations(values)}
           >
             <Form>
               <Row>
@@ -173,7 +202,7 @@ export class SAFormV2 extends React.Component<Props, State> {
                     name="name"
                     type="text"
                     labelText="Nombre de la SA"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
+                    onKeyUp={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
                   />
 
 
@@ -181,30 +210,39 @@ export class SAFormV2 extends React.Component<Props, State> {
                     name="realDomicile"
                     type="string"
                     labelText="Domicilio Real"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
+                    onKeyUp={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
                   />
 
-                  <GenericInputForm
+                  <GenericInputFormWithOnChange
                     name="creationDate"
                     type="date"
                     labelText="Fecha de Creacion"
                     onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
                   />
 
-                  <GenericInputForm
-                    name="legalRepresentative"
-                    as="select"
-                    labelText="Representante Legal"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
-                    collectionOfContent={partnersOptions}
-                  />
+                  <div>
+                    <div>
+                      <label htmlFor="legalRepresentative"> Representante Legal </label>
+                    </div>
+                    <Field
+                      as='select'
+                      name='legalRepresentative'
+                    >
+                      {
+                        <GenericFormSelectValues
+                          collectionOfContent={partnersOptions}
+                        />
+                      }
 
-                  <GenericInputForm
+                    </Field>
+                  </div>
+
+                  <GenericInputFormWithOnChange
                     name="statuteOfConformation"
                     type="file"
                     accept=".pdf"
                     labelText="Estatuto de conformacion"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)} />
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.handleFile(event, formKey)} />
 
                 </Col>
 
@@ -213,13 +251,13 @@ export class SAFormV2 extends React.Component<Props, State> {
                     name="email"
                     type="text"
                     labelText="Email"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)} />
+                    onKeyUp={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)} />
 
                   <GenericInputForm
                     name="legalDomicile"
                     type="string"
                     labelText="Domicilio Legal"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)} />
+                    onKeyUp={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)} />
 
                   <div >
                     <div className="d-flex justify-content-center">
