@@ -10,12 +10,12 @@ export interface Props {
   as?: string;
   accept?:string; 
   collectionOfContent?: Array<any>;
-  onKeyUp: (event: React.ChangeEvent<HTMLInputElement>, formKey: string) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>, formKey: string) => void;
 }
 
 export interface State { }
 
-export class GenericInputForm extends React.Component<Props, State> {
+export class GenericInputFormWithOnChange extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
@@ -33,7 +33,7 @@ export class GenericInputForm extends React.Component<Props, State> {
           name={name}
           type={type? type : null}
           accept={accept? accept : null}
-          onKeyUp={(event: React.ChangeEvent<HTMLInputElement>) => this.props.onKeyUp(event, name)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => this.props.onChange(event, name)}
         >
           {
             collectionOfContent &&

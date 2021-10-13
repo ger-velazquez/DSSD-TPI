@@ -14,7 +14,7 @@ export let defaultValuesForForm: CorporationForm = {
   statuteOfConformation: null, // save the pdf route in app file system
   legalDomicile: "",
   realDomicile: "",
-  legalRepresentative: defaultPartner,
+  legalRepresentative: "",
   email: "",
   exportLocations: [],
 }
