@@ -1,0 +1,1 @@
+[{"model": "anonymous_societys.status", "pk": 1, "fields": {"name": "Pending"}}, {"model": "anonymous_societys.status", "pk": 2, "fields": {"name": "Accepted"}}, {"model": "anonymous_societys.status", "pk": 3, "fields": {"name": "Rejected"}}]
