@@ -24,7 +24,7 @@ export class GenericModal extends React.Component<Props, State> {
           show={show}
           onHide={() => this.props.onClose()}
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton style={{ fontSize: '1.25em', fontWeight: 800 }}>
             {title}
           </Modal.Header>
           <Modal.Body>

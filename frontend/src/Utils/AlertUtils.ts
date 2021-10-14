@@ -10,6 +10,24 @@ class AlertUtils {
       showConfirmButton: true,
     });
   }
+
+  notifyWithCallback(
+    operationResult: AlertTypes,
+    title: string,
+    callback: Function
+  ) {
+    Swal.fire({
+      title: title,
+      icon: operationResult,
+      showConfirmButton: true,
+    }).then((result) => {
+      if (result.value) {
+        callback();
+      }
+    });
+  }
+
+
 }
 
 export default new AlertUtils();

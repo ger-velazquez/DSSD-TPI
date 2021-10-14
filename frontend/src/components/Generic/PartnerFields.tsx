@@ -21,6 +21,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"firstName"}> Nombre </label>
           </div>
           <Field
+            className="w-100"
             name={`firstName`}
             type="text"
           />
@@ -32,6 +33,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"lastName"}> Apellido </label>
           </div>
           <Field
+            className="w-100"
             name={`lastName`}
             type="text"
           />
@@ -42,6 +44,7 @@ export class PartnerFields extends React.Component<Props, State> {
             <label htmlFor={"percentageOfContributions"}> Porcentaje de Contribucion </label>
           </div>
           <Field
+            className="w-100"
             name={`percentageOfContributions`}
             type="number"
           />

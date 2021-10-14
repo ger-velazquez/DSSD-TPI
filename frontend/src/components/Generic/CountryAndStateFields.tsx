@@ -22,6 +22,7 @@ export class CountryAndStateFields extends React.Component<Props, State> {
             <label htmlFor={"country"}> Pais donde Exporta </label>
           </div>
           <Field
+            className="w-100"
             name={`country`}
             as='select'
           >
@@ -36,6 +37,7 @@ export class CountryAndStateFields extends React.Component<Props, State> {
             <label htmlFor={"state"}> Estado donde Exporta </label>
           </div>
           <Field
+            className="w-100"
             name={`state`}
             type="text"
           />

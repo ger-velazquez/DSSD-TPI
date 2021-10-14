@@ -2,7 +2,7 @@ import { Formik, Form, Field } from 'formik';
 import * as React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { defaultValuesForForm } from '../constants/FormConstants';
-import { AlertTypes, CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, InitialValuesToCollectionsModal, ModalConfiguration, Partner } from '../interfaces/FormInterfaces';
+import { AlertTypes, CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, GenericHttpResponse, InitialValuesToCollectionsModal, ModalConfiguration, Partner } from '../interfaces/FormInterfaces';
 import { GenericInputForm } from './Generic/GenericInputForm';
 import { cloneDeep } from 'lodash';
 import { PartnerFields } from './Generic/PartnerFields';
@@ -15,6 +15,8 @@ import { GenericInputFormWithOnChange } from './Generic/GenericInputFormWithOnCh
 import FileUtils from '../Utils/FileUtils';
 import { GenericFormSelectValues } from './Generic/GenericFormSelectValues';
 import AlertUtils from '../Utils/AlertUtils';
+import FormService from '../services/FormService';
+import ValidationService from '../services/ValidationService';
 
 
 export interface Props { }
@@ -23,6 +25,7 @@ export interface State {
   validated: boolean;
   corporationForm: CorporationForm;
   modalConfiguration: ModalConfiguration;
+  errorMessage: string;
 }
 export class SAFormV2 extends React.Component<Props, State> {
 
@@ -30,6 +33,7 @@ export class SAFormV2 extends React.Component<Props, State> {
     super(props);
     this.state = {
       validated: false,
+      errorMessage: "",
       corporationForm: defaultValuesForForm,
       modalConfiguration: {
         show: false,
@@ -61,19 +65,23 @@ export class SAFormV2 extends React.Component<Props, State> {
   }
 
   async addMediaContent(form: CorporationForm) {
-    AlertUtils.notify(AlertTypes.success, "Carga exitosa pa");
-    return
     const formData: CorporationForm = cloneDeep(this.state.corporationForm);
     formData.partners = this.setLegalRepresentative(formData.partners, form.legalRepresentative);
-    console.log(formData);
 
-    const response = await HttpClient.post(
-      "api/process",
-      {
-        form: formData
-      }
-    )
+    const validation: string[] = ValidationService.validateForm(formData, form.legalRepresentative);
 
+    if (validation.length > 0) {
+      this.setState({ errorMessage: validation[0] })
+      return
+    }
+
+    const formUploaded: GenericHttpResponse<any> = await FormService.uploadAnonymousSociety(formData);
+    if (formUploaded.status) {
+      AlertUtils.notifyWithCallback(AlertTypes.success, "La sociedad fue cargada con exito", () => window.location.reload())
+    }
+    else {
+      AlertUtils.notify(AlertTypes.error, "Ocurrio un error. Intentelo nuevamente, por favor")
+    }
   }
 
   handleValidations(values: CorporationForm) {
@@ -224,7 +232,7 @@ export class SAFormV2 extends React.Component<Props, State> {
                     onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
                   />
 
-                  <div>
+                  <div className="mb-3">
                     <div>
                       <label htmlFor="legalRepresentative"> Representante Legal </label>
                     </div>
@@ -293,6 +301,16 @@ export class SAFormV2 extends React.Component<Props, State> {
                   <button type="submit"> Cargar </button>
                 </div>
               </Row>
+
+              {this.state.errorMessage &&
+                <Row className="mb-3 d-flex justify-content-center">
+                    <div style={{ color: 'red' }} >
+                      {this.state.errorMessage}
+                    </div>
+                </Row>
+              }
+
+
 
             </Form>
 

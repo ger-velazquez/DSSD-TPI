@@ -54,7 +54,7 @@ export class AddElementToCollectionModal extends React.Component<Props, State> {
         >
           <Row>
             <Col md="6" xs="12" lg="6" style={{ borderRightColor: 'grey' }}>
-              <div className="mb-3">
+              <div className="mb-3" style={{ fontWeight: 600 }}> 
                 {`Agregar ${title}`}
               </div>
               <div>
@@ -64,7 +64,7 @@ export class AddElementToCollectionModal extends React.Component<Props, State> {
                 >
                   <Form>
                     {specificForm}
-                    <Row className="mb-3 d-flex justify-content-center">
+                    <Row className="mt-3 d-flex justify-content-center">
                       <div>
                         <button type="submit"> Agregar </button>
                       </div>
@@ -74,7 +74,7 @@ export class AddElementToCollectionModal extends React.Component<Props, State> {
               </div>
             </Col>
             <Col md="6" xs="12" lg="6">
-              <div className="mb-3">
+              <div className="mb-3" style={{ fontWeight: 600 }}>
                 {`${title} actuales`}
               </div>
               <div>

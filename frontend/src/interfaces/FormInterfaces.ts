@@ -6,6 +6,11 @@ export enum HTMLInputType {
   select = "select"
 }
 
+export interface GenericValidationInterface {
+  validationFunction: () => boolean;
+  errorMessage: string;
+}
+
 export enum DynamicFieldsOperations {
   add = "add",
   delete = "delete",
