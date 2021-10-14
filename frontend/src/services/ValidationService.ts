@@ -1,4 +1,4 @@
-import { CorporationForm, GenericValidationInterface } from "../interfaces/FormInterfaces";
+import { CorporationForm, GenericValidationInterface, Partner } from "../interfaces/FormInterfaces";
 
 class ValidationService {
 
@@ -21,7 +21,21 @@ class ValidationService {
     return content ? true : false;
   }
 
-  validateForm(form: CorporationForm, legalRepresentative: string): string[]{
+  private sumIs100(partners: Partner[]): boolean {
+    if (partners.length === 0) {
+      return false;
+    }
+    return partners.map((partners) => partners.percentageOfContributions).reduce((prev, actual) => prev + actual) === 100;
+  }
+
+  private validatePartners(partners: Partner[]): boolean {
+    const a = this.sumIs100(partners);
+    console.log(a);
+
+    return a;
+  }
+
+  validateForm(form: CorporationForm, legalRepresentative: string): string[] {
     const { name, creationDate, partners, statuteOfConformation, legalDomicile, realDomicile, email, exportLocations } = form;
     const validations: GenericValidationInterface[] = [
       {
@@ -36,6 +50,7 @@ class ValidationService {
         validationFunction: () => this.isNotEmpty(partners),
         errorMessage: "Debe agregar a los socios de la sociedad ",
       },
+
       {
         validationFunction: () => statuteOfConformation !== null,
         errorMessage: "Debe cargar el estatuto de conformacion",
@@ -56,7 +71,10 @@ class ValidationService {
         validationFunction: () => this.isNotEmpty(email),
         errorMessage: "El campo 'email' no puede estar vacio ",
       },
-
+      {
+        validationFunction: () => this.validatePartners(partners),
+        errorMessage: "La suma de los porcentajes debe ser igual a 100",
+      },
 
     ]
 
