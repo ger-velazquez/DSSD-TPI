@@ -153,6 +153,7 @@ export class SAFormV2 extends React.Component<Props, State> {
         firstName: "",
         lastName: "",
         percentageOfContributions: 0,
+        isLegalRepresentative: false,
       }
       title = "Socios"
     }

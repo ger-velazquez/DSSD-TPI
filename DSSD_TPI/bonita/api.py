@@ -14,7 +14,6 @@ from django.core.files.base import ContentFile
 class BonitaProcessView(APIView):
 
     def post(self, request):
-
         anon = AnonymousSociety.create(
             name = self.request.data['form']['name'],
             real_address = self.request.data['form']['realDomicile'],
@@ -36,7 +35,7 @@ class BonitaProcessView(APIView):
         file_name = "'statute." + ext
         anon.statute.save(file_name, data, save=True)
 
-
+        
         
         for a in self.request.data['form']['partners']:
             associate = Associate.create(
@@ -45,7 +44,7 @@ class BonitaProcessView(APIView):
                 percentage=a['percentageOfContributions'],
                 society_registration=society_re
             )
-            if a['legal'] == "true":
+            if a['isLegalRepresentative'] == True:
                 anon.legal_representative = associate
                 anon.save()
         
@@ -65,8 +64,6 @@ class BonitaProcessView(APIView):
             if logged:
 
                 bonita.get_process_id()
-
-                print (society_re.id)
 
                 bonita_set_variables = bonita.set_variables([
                     {"name":"idSolicitudSociedad","value": society_re.id}
