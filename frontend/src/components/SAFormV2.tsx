@@ -2,7 +2,7 @@ import { Formik, Form, Field } from 'formik';
 import * as React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { defaultValuesForForm } from '../constants/FormConstants';
-import { CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, InitialValuesToCollectionsModal, ModalConfiguration, Partner } from '../interfaces/FormInterfaces';
+import { AlertTypes, CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, InitialValuesToCollectionsModal, ModalConfiguration, Partner } from '../interfaces/FormInterfaces';
 import { GenericInputForm } from './Generic/GenericInputForm';
 import { cloneDeep } from 'lodash';
 import { PartnerFields } from './Generic/PartnerFields';
@@ -14,6 +14,7 @@ import GeneralUtils from '../Utils/GeneralUtils';
 import { GenericInputFormWithOnChange } from './Generic/GenericInputFormWithOnChange';
 import FileUtils from '../Utils/FileUtils';
 import { GenericFormSelectValues } from './Generic/GenericFormSelectValues';
+import AlertUtils from '../Utils/AlertUtils';
 
 
 export interface Props { }
@@ -60,6 +61,8 @@ export class SAFormV2 extends React.Component<Props, State> {
   }
 
   async addMediaContent(form: CorporationForm) {
+    AlertUtils.notify(AlertTypes.success, "Carga exitosa pa");
+    return
     const formData: CorporationForm = cloneDeep(this.state.corporationForm);
     formData.partners = this.setLegalRepresentative(formData.partners, form.legalRepresentative);
     console.log(formData);

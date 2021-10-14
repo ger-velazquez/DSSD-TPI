@@ -19,4 +19,4 @@ export let defaultValuesForForm: CorporationForm = {
   exportLocations: [],
 }
 
-export const defaultCountries: Array<string> = countryList().getLabels();
+export const defaultCountries: Array<string> = countryList().getLabels().filter( (country: string) => country !== 'Argentina' );

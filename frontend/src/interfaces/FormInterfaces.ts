@@ -11,6 +11,14 @@ export enum DynamicFieldsOperations {
   delete = "delete",
 }
 
+export enum AlertTypes {
+  error = 'error',
+  info = 'info',
+  question = 'question',
+  success = 'success',
+  warning = 'warning',
+}
+
 export interface ModalConfiguration {
   show: boolean;
   collectionKey: DynamicCollections;
@@ -37,11 +45,23 @@ export interface CountryAndState {
   state: string;
 }
 
+export type StatusCode = 404 | 500
+export interface GenericHttpResponse<TContent> {
+  status: boolean;
+  payload: TContent;
+  errors: Array<any>
+}
+
+export interface ErrorMessage {
+  status?: StatusCode;
+  message: string;
+}
+
 export type InitialValuesToCollectionsModal = Partner | CountryAndState;
 
 export type OnSubmitToTheCollection = (values: InitialValuesToCollectionsModal, collectionType: DynamicCollections) => void;
 
-export type ArrayToBeModifiedKeys = "partners" | "exportLocations"; 
+export type ArrayToBeModifiedKeys = "partners" | "exportLocations";
 
 export interface CorporationForm {
   name: string;
