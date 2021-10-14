@@ -47,13 +47,20 @@ class BonitaProcessView(APIView):
             if a['isLegalRepresentative'] == True:
                 anon.legal_representative = associate
                 anon.save()
-        
-        for e in self.request.data['form']['exportLocations']:
-             export = Export.create(
-                 country=e['country'],
-                 state=e['state'],
-                 anonymous_society=anon
-            )
+
+        if not self.request.data['form']['exportLocations']:
+            Export.create(
+                    country='Argentina',
+                    state=None,
+                    anonymous_society=anon
+                )
+        else:
+            for e in self.request.data['form']['exportLocations']:
+                export = Export.create(
+                    country=e['country'],
+                    state=e['state'],
+                    anonymous_society=anon
+                )
 
 
         try:

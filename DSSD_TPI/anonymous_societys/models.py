@@ -102,14 +102,14 @@ class Associate(models.Model):
 
 class Export(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    state = models.CharField(max_length=255)
+    state = models.CharField(max_length=255, null=True)
     anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.country) + ' -- ' + str(self.anonymous_society)
 
     @classmethod
-    def create(cls, country, state, anonymous_society=None):
+    def create(cls, country, state=None, anonymous_society=None):
 
         c = Country.create(country)
 
