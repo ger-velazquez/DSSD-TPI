@@ -7,7 +7,8 @@ export interface SocietyRegistrationRoutes {
 
 export enum SocietyRegistrationPaths {
   pendingForms = "/pending-forms",
-  registrationForm = "/registration"
+  registrationForm = "/registration",
+  societyDescription = "/sociedad-anonima/:fileNumber",
 }
 
 export interface ManagePendingForms {
