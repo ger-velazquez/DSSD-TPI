@@ -15,6 +15,7 @@ class BonitaService:
         self.sessionid = ''
         self.process_id = ''
         self.case_id = ''
+        self.human_task_id = ''
 
     def login(self):
         data = {
@@ -65,7 +66,7 @@ class BonitaService:
     def instantiation(self):
 
         url = '{}/{}/{}/{}'.format(self.url, 'API/bpm/process', self.process_id, 'instantiation')
-
+        
         cookies = {
             'JSESSIONID': self.sessionid,
             'X-Bonita-API-Token': self.token
@@ -112,27 +113,125 @@ class BonitaService:
         return res.status_code
 
     
-    # def get_human_task(self):
+    def get_human_task(self):
 
-    #     url = '{}/{}'.format(self.url, '/API/bpm/humanTask') 
+        url = ('{}/{}'.format(self.url,'API/bpm/humanTask?f=caseId=') + str(self.case_id) )
 
-    #     payload = {'f': 'caseId=3003'}
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
 
-    #     cookies = {
-    #         'JSESSIONID': self.sessionid,
-    #         'X-Bonita-API-Token': self.token
-    #     }
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            }
+        )
 
-    #     res = requests.get(
-    #         url,
-    #         cookies=cookies,
-    #         headers={
-    #             "Content-type": "application/json",
-    #             'JSESSIONID': self.sessionid,
-    #             'X-Bonita-API-Token': self.token
-    #         },
-    #         params=payload
-    #     )
+        self.human_task_id = res.json()[0].get('id')
 
-    #     self.human_task_id = res.json()[0].get('id')
+    
+    def assign_task(self):
 
+        url = ('{}/{}'.format(self.url, 'API/bpm/userTask/')) + str(self.human_task_id)
+        
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
+
+        data = {
+             "assigned_id": 1
+        }
+
+        res = requests.put(
+            url,
+            cookies=cookies,
+            json= data,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            },
+        )
+
+        if(res.status_code == 200):
+            return 'Assigned'
+        else:
+            return 'Rejected'
+        
+    def execute_task(self):
+ 
+        url = ('{}/{}/{}/{}'.format(self.url, 'API/bpm/userTask',str(self.human_task_id),'execution'))
+
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
+
+        res = requests.post(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            },
+        )
+
+        print(url)
+
+        if(res.status_code == 204):
+            return 'Execute'
+        else:
+            return 'Rejected'  
+
+
+    def set_var(self, var, value):
+        url = ('{}/{}/{}'.format(self.url, 'API/bpm/caseVariable',str(self.case_id)))
+
+        if(var == 1):
+            url = url + '/idSolicitudSociedad'
+            data ={  
+                "type": "java.lang.Integer",
+                "value": str(value)
+            }
+
+        elif(var == 2):
+            url = url + '/inscripcionValida'
+            data ={  
+                "type": "java.lang.Boolean",
+                "value": str(value)
+            }
+
+        elif(var == 3):
+            url = url + '/tramiteValido'
+            data ={  
+                "type": "java.lang.Boolean",
+                "value": str(value)
+            }
+
+        cookies = {
+            'JSESSIONID': self.sessionid,
+            'X-Bonita-API-Token': self.token
+        }
+        
+        res = requests.put(
+            url,
+            json=data,
+            cookies=cookies,
+            headers={
+                "Content-Type": "application/json",
+                'JSESSIONID': self.sessionid,
+                'X-Bonita-API-Token': self.token
+            },
+        )
+
+        if(res.status_code == 200):
+            return 'Updated'
+        else:
+            return 'Rejected'  
