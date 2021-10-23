@@ -27,6 +27,23 @@ class AlertUtils {
     });
   }
 
+  inputModal(
+    title: string,
+    inputPlaceHolder: string,
+    callback: (textContent: string) => void,
+  ) {
+    Swal.fire({
+      input: 'textarea',
+      inputLabel: title,
+      inputPlaceholder: inputPlaceHolder,
+      showCancelButton: true 
+    }).then( (text) => {
+      if (text) {
+        callback(text as any);
+      }
+    } )
+  }
+
 
 }
 

@@ -14,7 +14,7 @@ from django.core.files.base import ContentFile
 class BonitaProcessView(APIView):
 
     def post(self, request):
-
+        print(self.request.data)
         try:
             anon = AnonymousSociety.create(
                 name = self.request.data['form']['name'],

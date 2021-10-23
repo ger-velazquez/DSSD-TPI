@@ -1,3 +1,5 @@
+import { SocietyRegistrationInterface } from "./SocietyRegistrationInterfaces";
+
 export type GenericInputType = "button" | "checkbox" | "color" | "date" | "datetime-local" | "email" | "file" | "hidden" | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit" | "tel" | "text" | "time" | "url" | "week" | "select" | "textarea"
 
 export enum HTMLInputType {
@@ -69,6 +71,7 @@ export type OnSubmitToTheCollection = (values: InitialValuesToCollectionsModal, 
 export type ArrayToBeModifiedKeys = "partners" | "exportLocations";
 
 export interface CorporationForm {
+  id?: number;
   name: string;
   creationDate: Date | null;
   partners: Array<Partner>;
@@ -78,4 +81,9 @@ export interface CorporationForm {
   legalRepresentative: string;
   email: string;
   exportLocations: CountryAndState[];
+}
+
+export interface SocietyRegistrationWithForm {
+  societyRegistration: SocietyRegistrationInterface;
+  form: CorporationForm;
 }

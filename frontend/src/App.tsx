@@ -1,12 +1,22 @@
-import logo from './logo.svg';
 import './App.css';
-import { SAFormV2 } from './components/SAFormV2';
+import routes from "./routing/Routes"
+import { SocietyRegistrationRoutes } from './interfaces/SocietyRegistrationInterfaces';
+import { SocietyRegistrationRoute } from './routing/SocietyRegistrationRoute';
+import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   return (
     <div className="App">
-      {/* <SAForm /> */}
-      <SAFormV2/>
+      <Router>
+        {
+          routes.map((route: SocietyRegistrationRoutes) => (
+            <SocietyRegistrationRoute
+              key={route.path}
+              aRoute={route}
+            />
+          ))
+        }
+      </Router>
     </div>
   );
 }
