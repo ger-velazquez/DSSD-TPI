@@ -16,6 +16,8 @@ class BonitaService:
         self.process_id = ''
         self.case_id = ''
         self.human_task_id = ''
+        self.display_name = ''
+        self.state = ''
 
     def login(self):
         data = {
@@ -83,6 +85,8 @@ class BonitaService:
         )
 
         self.case_id = res.json().get('caseId')
+        self.display_name = res.json().get('displayName')
+        self.state = res.json().get('state')
 
     def set_variables(self, vars):
 
