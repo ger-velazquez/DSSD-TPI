@@ -65,8 +65,9 @@ class SocietyRegistration(models.Model):
     status = models.ForeignKey(Status, default=1, on_delete=models.CASCADE)
     due_date = models.DateField(null=True)
     observation = models.CharField(max_length=255, null=True)
-    file_number = models.CharField(max_length=255, null=True)
+    file_number = models.CharField(max_length=255, null=True, unique=True)
     date_created = models.DateField(auto_now_add=True)
+    hash = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return str(self.anonymous_society) + ' -- ' + str(self.status)
@@ -78,6 +79,20 @@ class SocietyRegistration(models.Model):
         )
         return society_re
 
+    def generate_file_number(self):
+        import random
+        import hashlib
+        valid = False
+        while not valid:
+            r = str(random.randint(1, 99999999))
+            society = SocietyRegistration.objects.filter(file_number=r)
+            if not society.exists():
+                self.file_number = r
+                hash = hashlib.md5(r.encode())
+                hash = hash.hexdigest()
+                self.hash = hash
+                self.save()
+                valid = True
 
 class Associate(models.Model):
     name = models.CharField(max_length=128)

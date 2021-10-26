@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from .bonita_service import BonitaService
@@ -9,6 +9,11 @@ from django.conf import settings
 
 import base64
 from django.core.files.base import ContentFile
+
+from anonymous_societys.serializers import (
+    SocietyRegistrationSerializer
+)
+
 
 
 class BonitaProcessView(APIView):
@@ -99,3 +104,22 @@ class BonitaProcessView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class SocietyRegistrationViewSet(viewsets.ModelViewSet):
+    serializer_class = SocietyRegistrationSerializer
+    http_method_names = ['get']
+
+
+    def get_queryset(self):
+        hash = self.request.query_params.get('hash', None)
+        id = self.request.query_params.get('id', None)
+
+
+        if hash:
+            return SocietyRegistration.objects.filter(hash=hash)
+        if id: 
+            return SocietyRegistration.objects.filter(id=id)
+        else:
+            return SocietyRegistration.objects.filter(status=1)
+
