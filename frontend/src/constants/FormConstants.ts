@@ -73,4 +73,5 @@ export let mockedPendingForms: SocietyRegistrationWithForm[] = [
   }
 ]
 
+
 export const defaultCountries: Array<string> = countryList().getLabels().filter( (country: string) => country !== 'Argentina' );

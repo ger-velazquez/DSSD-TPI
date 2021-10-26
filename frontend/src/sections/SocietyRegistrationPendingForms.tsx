@@ -3,8 +3,9 @@ import { Container } from 'react-bootstrap';
 import { ManageCollectionOfItems } from '../components/Generic/ManageCollectionOfItems';
 import { PendingContentModal } from '../components/PendingContentModal';
 import { defaultValuesForForm, defaultValuesForSocietyRegistration, mockedPendingForms } from '../constants/FormConstants';
-import { CorporationForm, SocietyRegistrationWithForm } from '../interfaces/FormInterfaces';
+import { AlertTypes, CorporationForm, GenericHttpResponse, SocietyRegistrationWithForm } from '../interfaces/FormInterfaces';
 import { ManageCollectionActions } from '../interfaces/SocietyRegistrationInterfaces';
+import SocietyService from '../services/SocietyService';
 import AlertUtils from '../Utils/AlertUtils';
 
 export interface Props { }
@@ -29,29 +30,45 @@ export class SocietyRegistrationPendingForms extends React.Component<Props, Stat
     }
   }
 
-  componentDidMount() {
-    // make request to get this information
-    this.setState({
-      pendingForms: mockedPendingForms
-    })
+  async componentDidMount() {
+    // const response: GenericHttpResponse<SocietyRegistrationWithForm[]> = await SocietyService.getPendingForms();
+    // if (response.status) {
+    if (true) {
+      // const updatedPendingForms = response.payload;
+      const updatedPendingForms = mockedPendingForms;
+      this.setState({
+        pendingForms: updatedPendingForms
+      })
+    }
   }
 
-  sendMessage(regisTrationID: number, action: ManageCollectionActions, reason: string) {
-    console.log(reason);
-    
-    alert(`envie el texto: ${reason}`)
+  async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string) {
+    const response: GenericHttpResponse<any> =   await SocietyService.updatePendingForm(registrationID, action, reason);
+    if (response.status) {
+      AlertUtils.notifyWithCallback(
+        AlertTypes.success,
+        "La actualizacion fue realizada con exito",
+        () => window.location.reload()
+      )
+    }
+    else {
+      AlertUtils.notifyWithCallback(
+        AlertTypes.error,
+        "Ocurrio un error, intentelo mas tarde",
+        () => window.location.reload()
+      )
+    }
   }
   
   handleUpdate(registrationId: number, action: ManageCollectionActions) {
     if ( action === ManageCollectionActions.reject) {
-      AlertUtils.inputModal("Ingrese el comito del rechazo, por favor", "Escribir aqui ..", (text: any) => this.sendMessage(registrationId, action,text.value ))
+      AlertUtils.inputModal("Ingrese el motivo del rechazo, por favor", "Escribir aqui ..", (text: any) => this.sendMessage(registrationId, action,text.value ))
       return;
     }
     else {
       this.sendMessage(registrationId, action, "");
       return;
     }
-    alert("Send request to update de state");
   }
 
   showModal(societyRegistrationData: SocietyRegistrationWithForm) {

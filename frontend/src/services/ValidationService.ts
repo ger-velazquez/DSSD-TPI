@@ -16,7 +16,6 @@ class ValidationService {
     return value.length != 0;
   }
 
-
   private isNotNull(content: any) {
     return content ? true : false;
   }
