@@ -98,7 +98,7 @@ class Associate(models.Model):
     name = models.CharField(max_length=128)
     last_name = models.CharField(max_length=128)
     percentage = models.IntegerField()
-    society_registration = models.ForeignKey(SocietyRegistration, on_delete=models.CASCADE)
+    society_registration = models.ForeignKey(SocietyRegistration, on_delete=models.CASCADE,  related_name='society_registrations')
 
     def __str__(self):
         return self.name + ' ' + self.last_name
@@ -118,7 +118,7 @@ class Associate(models.Model):
 class Export(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     state = models.CharField(max_length=255, null=True)
-    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE)
+    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE, related_name='anonymous_society')
 
     def __str__(self):
         return str(self.country) + ' -- ' + str(self.anonymous_society)

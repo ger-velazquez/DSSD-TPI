@@ -114,12 +114,13 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         hash = self.request.query_params.get('hash', None)
         id = self.request.query_params.get('id', None)
-
+        file_number = self.request.query_params.get('file_number', None)
 
         if hash:
             return SocietyRegistration.objects.filter(hash=hash)
         if id: 
             return SocietyRegistration.objects.filter(id=id)
+        if file_number: 
+            return SocietyRegistration.objects.filter(file_number=file_number)
         else:
             return SocietyRegistration.objects.filter(status=1)
-
