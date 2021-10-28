@@ -98,12 +98,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME', 'dssd'),
-        'USER': os.getenv('DB_USER', 'german'),
-        'PASSWORD': os.getenv('DB_PASSWD', 'german123'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWD', 'root'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -148,8 +149,8 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# BONITA_URL = 'http://localhost:8080/bonita'
-BONITA_URL = 'http://localhost:18925/bonita'
+BONITA_URL = 'http://localhost:8080/bonita'
+# BONITA_URL = 'http://localhost:18925/bonita'
 
 BONITA_USERNAME = 'walter.bates'
 

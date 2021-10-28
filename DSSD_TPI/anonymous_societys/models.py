@@ -81,24 +81,28 @@ class SocietyRegistration(models.Model):
 
     def generate_file_number(self):
         import random
-        import hashlib
         valid = False
         while not valid:
             r = str(random.randint(1, 99999999))
             society = SocietyRegistration.objects.filter(file_number=r)
             if not society.exists():
                 self.file_number = r
-                hash = hashlib.md5(r.encode())
-                hash = hash.hexdigest()
-                self.hash = hash
                 self.save()
                 valid = True
+    
+    def generate_hash(self):
+        import hashlib
+
+        hash = hashlib.md5(self.file_number.encode())
+        hash = hash.hexdigest()
+        self.hash = hash
+        self.save()
 
 class Associate(models.Model):
     name = models.CharField(max_length=128)
     last_name = models.CharField(max_length=128)
     percentage = models.IntegerField()
-    society_registration = models.ForeignKey(SocietyRegistration, on_delete=models.CASCADE)
+    society_registration = models.ForeignKey(SocietyRegistration, on_delete=models.CASCADE,  related_name='society_registrations')
 
     def __str__(self):
         return self.name + ' ' + self.last_name
@@ -118,7 +122,7 @@ class Associate(models.Model):
 class Export(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     state = models.CharField(max_length=255, null=True)
-    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE)
+    anonymous_society = models.ForeignKey(AnonymousSociety, on_delete=models.CASCADE, related_name='anonymous_society')
 
     def __str__(self):
         return str(self.country) + ' -- ' + str(self.anonymous_society)
