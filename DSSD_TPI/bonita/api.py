@@ -272,9 +272,9 @@ class ValidateTramiteView(APIView):
                 if status_data == 'reject':
                     bonita.set_var(3,"False")
 
-                bonita.get_human_task()
-                bonita.assign_task()
-                bonita.execute_task()
+                #bonita.get_human_task()
+                #bonita.assign_task()
+                #bonita.execute_task()
 
                 return Response(
                         {
