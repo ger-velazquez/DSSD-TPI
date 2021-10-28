@@ -4,7 +4,10 @@ from rest_framework.routers import DefaultRouter
 from bonita.api import (
     BonitaProcessView,
     SocietyRegistrationViewSet,
-    ValidateRegistrationFormView
+    ValidateRegistrationFormView,
+    EmailView,
+    ValidateTramiteView,
+    # EstampilladoView
 )
 
 app_name = "bonita"
@@ -22,6 +25,21 @@ bonita_urls = [
         r'^validate-reg-form',
         ValidateRegistrationFormView.as_view(),
         name='validate-reg-form'
+    ),
+    url(
+        r'^validate-tramite',
+        ValidateTramiteView.as_view(),
+        name='validate-tramite'
+    ),
+    # url(
+    #     r'^estampillado',
+    #     EstampilladoView.as_view(),
+    #     name='estampillado'
+    # ),
+    url(
+        r'^email',
+        EmailView.as_view(),
+        name='email'
     ),
     url(r'^', include(router.urls)),
 

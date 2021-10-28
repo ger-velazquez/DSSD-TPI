@@ -8,11 +8,14 @@ from anonymous_societys.models import *
 from django.conf import settings
 
 import base64
+import requests
 from django.core.files.base import ContentFile
 
 from anonymous_societys.serializers import (
     SocietyRegistrationSerializer,
-    ValidateRegistrationFormSerializer
+    ValidateRegistrationFormSerializer,
+    EmailSerializer,
+    ValidateTramiteSerializer
 )
 
 
@@ -174,3 +177,134 @@ class ValidateRegistrationFormView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class EmailView(APIView):
+    serializer_class = EmailSerializer
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        content = request.data.get('content', None)
+        id = request.data.get('id', None)
+
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+            
+            society.anonymous_society.email
+
+            import smtplib
+
+            FROM = settings.EMAIL_USER
+            TO = society.anonymous_society.email
+            SUBJECT = 'dssd'
+            TEXT = content
+
+            # Prepare actual message
+            message = 'From: {}\r\nTo: {}\r\nSubject: {}\r\n{}'.format(FROM, TO, SUBJECT,TEXT)
+
+            print (message)
+
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.ehlo()
+            server.starttls()
+            server.login(settings.EMAIL_USER, settings.EMAIL_PASS)
+            server.sendmail(FROM, TO, message)
+            server.close()
+
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
+            )
+           
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ValidateTramiteView(APIView):
+    serializer_class = ValidateTramiteSerializer
+
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        status_data = request.data.get('status', None)
+        id = request.data.get('id', None)
+
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+            if status_data == 'accept':
+                #setear en bonitaaaaa???
+                return
+
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
+            )
+           
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+# class EstampilladoView(APIView):
+#     serializer_class = ValidateTramiteSerializer
+
+
+#     def post(self, request):
+
+#         serializer = self.serializer_class(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         status_data = request.data.get('status', None)
+#         id = request.data.get('id', None)
+
+#         try:
+#             society = SocietyRegistration.objects.get(id=id)
+#             if status_data == 'accept':
+#                 #setear en bonitaaaaa???
+#                 return
+
+#             return Response(
+#                     {
+#                         "status": True,
+#                         "payload": {},
+#                         "errors": [],
+#                     },
+#                     status=status.HTTP_200_OK
+#             )
+           
+#         except Exception as e:
+#             return Response(
+#                 {
+#                     "status": False,
+#                     "payload": {},
+#                     "errors": str(e),
+#                 },
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )

@@ -66,3 +66,29 @@ class ValidateRegistrationFormSerializer(serializers.Serializer):
             )
         return value
 
+
+class ValidateTramiteSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices = STATUS_CHOICES)
+    id = serializers.IntegerField()
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value
+
+class EmailSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    content = serializers.CharField()
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value
