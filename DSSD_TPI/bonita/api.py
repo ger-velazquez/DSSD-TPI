@@ -11,7 +11,8 @@ import base64
 from django.core.files.base import ContentFile
 
 from anonymous_societys.serializers import (
-    SocietyRegistrationSerializer
+    SocietyRegistrationSerializer,
+    ValidateRegistrationFormSerializer
 )
 
 
@@ -124,3 +125,52 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
             return SocietyRegistration.objects.filter(file_number=file_number)
         else:
             return SocietyRegistration.objects.filter(status=1)
+
+
+class ValidateRegistrationFormView(APIView):
+    serializer_class = ValidateRegistrationFormSerializer
+
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        status_data = request.data.get('status', None)
+        id = request.data.get('id', None)
+        observation = request.data.get('observation', None)
+
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+            if status_data == 'accept':
+                st = Status.objects.get(id=2)
+                society.status = st
+                society.save()
+                society.generate_file_number()
+            else:
+                st = Status.objects.get(id=3)
+                society.status = st
+                society.save()
+
+            if observation:
+                society.observation = observation
+                society.save()
+            
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
+            )
+           
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )

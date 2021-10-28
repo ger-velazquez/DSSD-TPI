@@ -45,3 +45,24 @@ class SocietyRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocietyRegistration
         fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'associate')
+
+
+STATUS_CHOICES =( 
+    ("accept"), 
+    ("reject"), 
+)
+
+class ValidateRegistrationFormSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices = STATUS_CHOICES)
+    id = serializers.IntegerField()
+    observation = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value
+
