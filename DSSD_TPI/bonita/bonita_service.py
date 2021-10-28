@@ -68,7 +68,6 @@ class BonitaService:
     def instantiation(self):
 
         url = '{}/{}/{}/{}'.format(self.url, 'API/bpm/process', self.process_id, 'instantiation')
-        
         cookies = {
             'JSESSIONID': self.sessionid,
             'X-Bonita-API-Token': self.token
@@ -83,10 +82,9 @@ class BonitaService:
                 'X-Bonita-API-Token': self.token
             },
         )
-
+        
         self.case_id = res.json().get('caseId')
-        self.display_name = res.json().get('displayName')
-        self.state = res.json().get('state')
+
 
     def set_variables(self, vars):
 
@@ -235,7 +233,4 @@ class BonitaService:
             },
         )
 
-        if(res.status_code == 200):
-            return 'Updated'
-        else:
-            return 'Rejected'  
+        return res.status_code

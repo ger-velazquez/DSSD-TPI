@@ -18,7 +18,7 @@ from anonymous_societys.serializers import (
     ValidateTramiteSerializer
 )
 
-
+bonita = BonitaService()
 
 class BonitaProcessView(APIView):
 
@@ -73,20 +73,26 @@ class BonitaProcessView(APIView):
                         anonymous_society=anon
                     )
 
-
-            bonita = BonitaService()
-
             logged = bonita.login()
 
             if logged:
 
                 bonita.get_process_id()
+                bonita.instantiation()
 
-                bonita_set_variables = bonita.set_variables([
-                    {"name":"idSolicitudSociedad","value": society_re.id}
-                ])
+                # bonita_set_variables = bonita.set_variables([
+                #     {"name":"idSolicitudSociedad","value": society_re.id}
+                # ])
+
+                bonita_set_variables = bonita.set_var(1,society_re.id)
+                #bonita_set_variables = 200
 
                 if bonita_set_variables == 200:
+
+                    bonita.get_human_task()
+                    bonita.assign_task()
+                    bonita.execute_task()
+
                     return Response(
                         {
                             "status": True,
@@ -143,40 +149,52 @@ class ValidateRegistrationFormView(APIView):
         id = request.data.get('id', None)
         observation = request.data.get('observation', None)
 
-        try:
-            society = SocietyRegistration.objects.get(id=id)
-            if status_data == 'accept':
-                st = Status.objects.get(id=2)
-                society.status = st
-                society.save()
-                society.generate_file_number()
-            else:
-                st = Status.objects.get(id=3)
-                society.status = st
-                society.save()
+        logged = bonita.login()
 
-            if observation:
-                society.observation = observation
-                society.save()
-            
-            return Response(
-                    {
-                        "status": True,
-                        "payload": {},
-                        "errors": [],
-                    },
+        if logged:
+            try:
+                society = SocietyRegistration.objects.get(id=id)
+                if status_data == 'accept':
+                    st = Status.objects.get(id=2)
+                    society.status = st
+                    society.save()
+                    society.generate_file_number()
+                    #aca setea
+                    bonita.set_var(2,"True")
+
+                else:
+                    st = Status.objects.get(id=3)
+                    society.status = st
+                    society.save()
+
+                if observation:
+                    society.observation = observation
+                    society.save()
+                
+
+                #aca avanza
+                bonita.get_human_task()
+                bonita.assign_task()
+                bonita.execute_task()
+
+                return Response(
+                        {
+                            "status": True,
+                            "payload": {},
+                            "errors": [],
+                        },
                     status=status.HTTP_200_OK
             )
-           
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "payload": {},
-                    "errors": str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            
+            except Exception as e:
+                return Response(
+                    {
+                        "status": False,
+                        "payload": {},
+                        "errors": str(e),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
 
 class EmailView(APIView):
@@ -246,30 +264,36 @@ class ValidateTramiteView(APIView):
         status_data = request.data.get('status', None)
         id = request.data.get('id', None)
 
-        try:
-            society = SocietyRegistration.objects.get(id=id)
-            if status_data == 'accept':
-                #setear en bonitaaaaa???
-                return
+        logged = bonita.login()
 
-            return Response(
+        if logged:        
+            try:
+                society = SocietyRegistration.objects.get(id=id)
+                if status_data == 'reject':
+                    bonita.set_var(3,"False")
+
+                bonita.get_human_task()
+                bonita.assign_task()
+                bonita.execute_task()
+
+                return Response(
+                        {
+                            "status": True,
+                            "payload": {},
+                            "errors": [],
+                        },
+                        status=status.HTTP_200_OK
+                )
+            
+            except Exception as e:
+                return Response(
                     {
-                        "status": True,
+                        "status": False,
                         "payload": {},
-                        "errors": [],
+                        "errors": str(e),
                     },
-                    status=status.HTTP_200_OK
-            )
-           
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "payload": {},
-                    "errors": str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
 
 # class EstampilladoView(APIView):
