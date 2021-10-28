@@ -9,6 +9,7 @@ export enum SocietyRegistrationPaths {
   pendingForms = "/pending-forms",
   registrationForm = "/registration",
   societyDescription = "/society/:fileNumber",
+  generateFileNumber = "/generate-file-number",
 }
 
 export interface ManagePendingForms {
@@ -26,9 +27,37 @@ export interface SocietyRegistrationInterface {
   societyRegistrationFormId?: number;
   status: number;
   dueDate: Date;
-  observation: string;
+  observation: string | null;
   fileNumber: string // este es el numero de expediente
   dateCreated: Date;
+}
+
+export interface SocietyRegistrationPendingFormsResponse {
+  anonymous_society: {
+    name: string;
+    date_created: Date;
+    email: string;
+    legal_address: string;
+    real_address: string;
+    statute: string;
+    legal_representative: {
+      id: number;
+      name: string;
+      last_name: string;
+      percentage: number;
+      society_registration: number;
+    };
+  };
+  id: number;
+  due_date: Date;
+  observation: string | null;
+  file_number: string;
+  hash: string;
+  date_created: Date;
+  status: {
+    id: number;
+    name: string;
+  }
 }
 
 // export interface ManageCollectionInterface {

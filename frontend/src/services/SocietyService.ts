@@ -1,5 +1,6 @@
 import { GenericHttpResponse, SocietyRegistrationWithForm } from "../interfaces/FormInterfaces";
-import { ManageCollectionActions } from "../interfaces/SocietyRegistrationInterfaces";
+import { ManageCollectionActions, SocietyRegistrationPendingFormsResponse } from "../interfaces/SocietyRegistrationInterfaces";
+import FormatUtils from "../Utils/FormatUtils";
 import HttpClient from "./HttpClient";
 
 class SocietyService {
@@ -17,12 +18,12 @@ class SocietyService {
     return response;
   }
 
-  async getPendingForms(): Promise<GenericHttpResponse<SocietyRegistrationWithForm[]>> {
-    const response: GenericHttpResponse<any> = await HttpClient.get(
-      "endpoint"
+  async getPendingForms() {
+    let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
+      "api/societies/"
     );
-
-    return response;
+    let test = FormatUtils.formatPendingFormsResponse(response);
+    return test;
   }
 
 }
