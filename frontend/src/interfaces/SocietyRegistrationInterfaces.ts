@@ -10,6 +10,7 @@ export enum SocietyRegistrationPaths {
   registrationForm = "/registration",
   societyDescription = "/society/:fileNumber",
   generateFileNumber = "/generate-file-number",
+  login = "/login",
 }
 
 export interface ManagePendingForms {

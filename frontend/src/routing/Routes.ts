@@ -1,3 +1,4 @@
+import { Login } from "../components/Login/Login";
 import { SAFormV2 } from "../components/SAFormV2";
 import SocietyDescription  from "../components/SocietyViews/SocietyDescription";
 import { SocietyRegistrationPaths, SocietyRegistrationRoutes } from "../interfaces/SocietyRegistrationInterfaces";
@@ -18,8 +19,14 @@ export const societyDescription: SocietyRegistrationRoutes = {
   path: SocietyRegistrationPaths.societyDescription
 }
 
+export const login: SocietyRegistrationRoutes = {
+  societyRegistrationComponent: Login,
+  path: SocietyRegistrationPaths.login
+}
+
 export default [
   societyRegistrationForm,
   societyRegistrationPendingForms,
-  societyDescription
+  societyDescription,
+  login
 ]

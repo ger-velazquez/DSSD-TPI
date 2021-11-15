@@ -74,8 +74,6 @@ export class SAFormV2 extends React.Component<Props, State> {
       this.setState({ errorMessage: validation[0] })
       return
     }
-    console.log(formData);
-    return
     const formUploaded: GenericHttpResponse<any> = await FormService.uploadAnonymousSociety(formData);
     if (formUploaded.status) {
       AlertUtils.notifyWithCallback(AlertTypes.success, "La sociedad fue cargada con exito", () => window.location.reload())

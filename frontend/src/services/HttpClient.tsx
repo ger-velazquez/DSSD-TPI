@@ -4,9 +4,17 @@ import ConfigService from "./ConfigService";
 
 class HttpClient {
   backendUrl: string;
+  urlBonita: string;
+
   constructor() {
-    this.backendUrl = ConfigService.getEnvironmentConfigurations().baseUrl
+    this.backendUrl = ConfigService.getEnvironmentConfigurations().baseUrl;
+    this.urlBonita = ConfigService.getEnvironmentConfigurations().bonitaUrl;
   }
+
+  determinateBackend(urlBonita?: boolean): string {
+    return urlBonita ? this.urlBonita : this.backendUrl;
+  }
+
   async extractJson<T>(response: Response): Promise<T> {
     return await response.json();
   }
@@ -20,9 +28,10 @@ class HttpClient {
     return requestHeaders;
 
   }
-  async get<T>(endpoint: string): Promise<T> {
-    console.log(`${this.backendUrl + endpoint}`);
-    const response = await fetch(this.backendUrl + endpoint, {
+  async get<T>(endpoint: string, bonitaUrl?: boolean): Promise<T> {
+    const backend: string = this.determinateBackend(bonitaUrl);
+
+    const response = await fetch(backend + endpoint, {
       method: "GET",
       headers: this.getHttpHeaders(),
     });
@@ -30,8 +39,10 @@ class HttpClient {
     return data;
   }
 
-  async post<T>(endpoint: string, bodyPayload: object): Promise<T> {
-    const response = await fetch(this.backendUrl + endpoint, {
+  async post<T>(endpoint: string, bodyPayload: object, bonitaUrl?: boolean): Promise<T> {
+    const backend: string = this.determinateBackend(bonitaUrl);
+
+    const response = await fetch(backend + endpoint, {
       method: "POST",
       headers: this.getHttpHeaders(),
       body: JSON.stringify(bodyPayload),
