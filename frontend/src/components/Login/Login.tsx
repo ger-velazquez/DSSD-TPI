@@ -4,6 +4,9 @@ import * as React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { initialUserLogin } from '../../constants/LoginConstants';
 import { UserLogin } from '../../interfaces/LoginInterfaces';
+import BonitaService from '../../services/BonitaService';
+import HttpClient from '../../services/HttpClient';
+import LoginService from '../../services/LoginService';
 import { GenericInputForm } from '../Generic/GenericInputForm';
 
 export interface Props { }
@@ -29,9 +32,12 @@ export class Login extends React.Component<Props, State> {
     })
   }
 
-  handleSubmit(userLogin: UserLogin) {
-    console.log(userLogin);
-    
+  async handleSubmit(userLogin: UserLogin) {
+    BonitaService.logIn(userLogin);
+  }
+
+  async handleLogout() {
+    BonitaService.logOut();
   }
 
   render() {
@@ -72,6 +78,25 @@ export class Login extends React.Component<Props, State> {
 
           </Form>
         </Formik>
+
+
+        <Row className="mb-3 d-flex justify-content-center">
+          <div>
+            <button type="submit" onClick={() => this.handleLogout()}> Log Out </button>
+          </div>
+        </Row>
+
+        <Row className="mb-3 d-flex justify-content-center">
+          <div>
+            <button type="submit" onClick={() => BonitaService.getCurrentSessionId()}> Current Session </button>
+          </div>
+        </Row>
+        {/* getUserInformation */}
+        <Row className="mb-3 d-flex justify-content-center">
+          <div>
+            <button type="submit" onClick={() => BonitaService.getUserInformation("")}> User Data </button>
+          </div>
+        </Row>
       </Container>
     );
   }
