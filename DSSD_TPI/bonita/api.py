@@ -10,12 +10,17 @@ from django.conf import settings
 import base64
 import requests
 from django.core.files.base import ContentFile
+from PIL import Image
+from io import BytesIO
+import os
 
 from anonymous_societys.serializers import (
     SocietyRegistrationSerializer,
     ValidateRegistrationFormSerializer,
     EmailSerializer,
-    ValidateTramiteSerializer
+    ValidateTramiteSerializer,
+    GenerateFileNumberSerializer,
+    EstampilladoSerializer
 )
 
 bonita = BonitaService()
@@ -25,57 +30,56 @@ class BonitaProcessView(APIView):
     def post(self, request):
         print(self.request.data)
         try:
-            anon = AnonymousSociety.create(
-                name = self.request.data['form']['name'],
-                real_address = self.request.data['form']['realDomicile'],
-                legal_address = self.request.data['form']['legalDomicile'],
-                email = self.request.data['form']['email'],
-                # format day YYYY-MM-DD
-                date_created = self.request.data['form']['creationDate'],
-            )
-
-            society_re = SocietyRegistration.create(
-                anonymous_society=anon
-            )
-
-            statute_base64 = self.request.data['form']['statuteOfConformation']
-            format, pdfstr = statute_base64.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(pdfstr))  
-            file_name = "'statute." + ext
-            anon.statute.save(file_name, data, save=True)
-
-            
-            
-            for a in self.request.data['form']['partners']:
-                associate = Associate.create(
-                    name=a['firstName'],
-                    last_name=a['lastName'],
-                    percentage=a['percentageOfContributions'],
-                    society_registration=society_re
-                )
-                if a['isLegalRepresentative'] == True:
-                    anon.legal_representative = associate
-                    anon.save()
-
-            if not self.request.data['form']['exportLocations']:
-                Export.create(
-                        country='Argentina',
-                        state=None,
-                        anonymous_society=anon
-                    )
-            else:
-                for e in self.request.data['form']['exportLocations']:
-                    export = Export.create(
-                        country=e['country'],
-                        state=e['state'],
-                        anonymous_society=anon
-                    )
-
             logged = bonita.login()
 
             if logged:
+                anon = AnonymousSociety.create(
+                    name = self.request.data['form']['name'],
+                    real_address = self.request.data['form']['realDomicile'],
+                    legal_address = self.request.data['form']['legalDomicile'],
+                    email = self.request.data['form']['email'],
+                    # format day YYYY-MM-DD
+                    date_created = self.request.data['form']['creationDate'],
+                )
+
+                society_re = SocietyRegistration.create(
+                    anonymous_society=anon
+                )
+
+                statute_base64 = self.request.data['form']['statuteOfConformation']
+                format, pdfstr = statute_base64.split(';base64,')
+                ext = format.split('/')[-1]
+
+                data = ContentFile(base64.b64decode(pdfstr))  
+                file_name = "'statute." + ext
+                anon.statute.save(file_name, data, save=True)
+
+                
+                
+                for a in self.request.data['form']['partners']:
+                    associate = Associate.create(
+                        name=a['firstName'],
+                        last_name=a['lastName'],
+                        percentage=a['percentageOfContributions'],
+                        society_registration=society_re
+                    )
+                    if a['isLegalRepresentative'] == True:
+                        anon.legal_representative = associate
+                        anon.save()
+
+                if not self.request.data['form']['exportLocations']:
+                    Export.create(
+                            country='Argentina',
+                            state=None,
+                            anonymous_society=anon
+                        )
+                else:
+                    for e in self.request.data['form']['exportLocations']:
+                        export = Export.create(
+                            country=e['country'],
+                            state=e['state'],
+                            anonymous_society=anon
+                        )
 
                 bonita.get_process_id()
                 bonita.instantiation()
@@ -158,7 +162,6 @@ class ValidateRegistrationFormView(APIView):
                     st = Status.objects.get(id=2)
                     society.status = st
                     society.save()
-                    society.generate_file_number()
                     #aca setea
                     bonita.set_var(2,"True")
 
@@ -296,39 +299,129 @@ class ValidateTramiteView(APIView):
                 )
 
 
-# class EstampilladoView(APIView):
-#     serializer_class = ValidateTramiteSerializer
+class GenerateFileNumberView(APIView):
+    serializer_class = GenerateFileNumberSerializer
 
 
-#     def post(self, request):
+    def post(self, request):
 
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-#         status_data = request.data.get('status', None)
-#         id = request.data.get('id', None)
+        id = request.data.get('id', None)
 
-#         try:
-#             society = SocietyRegistration.objects.get(id=id)
-#             if status_data == 'accept':
-#                 #setear en bonitaaaaa???
-#                 return
 
-#             return Response(
-#                     {
-#                         "status": True,
-#                         "payload": {},
-#                         "errors": [],
-#                     },
-#                     status=status.HTTP_200_OK
-#             )
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+            society.generate_file_number()
+
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                status=status.HTTP_200_OK
+        )
+        
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class EstampilladoView(APIView):
+    serializer_class = EstampilladoSerializer
+
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        id = request.data.get('id', None)
+
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+
+            data = {
+                'username': 'walter',
+                'password': 'bonita2021',
+            }
+
+
+            res = requests.post(
+                'https://dssd-estampillado.herokuapp.com/api-token-auth/',
+                data=data,
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
+            )
+
+            if res.status_code == 200:
+                token_jwt = res.json()['token']
+
+                statute_base64 = base64.b64encode(society.anonymous_society.statute.file.read())
+                statute_str = statute_base64.decode('utf-8')
+
+                data = { 
+                    "statute": statute_str,
+                    "file_number": society.file_number
+                }
+
+
+                res = requests.post(
+                    'https://dssd-estampillado.herokuapp.com/api/hash',
+                    data=data,
+                    headers={
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": "JWT " + token_jwt
+                    }
+                )
+
+                if res.status_code == 200:
+                    society.hash = token_jwt = res.json()['hash']
+                    society.save()
+
+                    qr_base64 = res.json()['qr_base64']
+
+                    im = Image.open(BytesIO(base64.b64decode(qr_base64)))
+                    im.save('image.png', 'PNG')
+
+                    name_file = 'qr_' + res.json()['hash'] + '.png'
+                    
+                    with open("image.png", "rb") as image_file:
+                        society.qr.save(name_file, image_file, save=True)
+                    
+                    os.remove("image.png") 
+
+                else:
+                    raise Exception(res.json())
+
+            else:
+                raise Exception(res.json())
+
+
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
+            )
            
-#         except Exception as e:
-#             return Response(
-#                 {
-#                     "status": False,
-#                     "payload": {},
-#                     "errors": str(e),
-#                 },
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
