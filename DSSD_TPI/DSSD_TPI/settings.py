@@ -26,10 +26,11 @@ SECRET_KEY = 'django-insecure-7&1@wbi&7#a6ba)6@##n@cp-c55ix5)f11smi2k2#v945%p9e@
 DEBUG = True
 
 # Application definition
-ALLOWED_HOSTS=['localhost']
+ALLOWED_HOSTS=['app.bonita.com', 'localhost']
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-     'http://localhost:3000',
+     'http://app.bonita.com:3001',
+     'http://localhost:3001'
 )
 
 REST_FRAMEWORK = {
@@ -98,8 +99,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.getenv('DB_NAME', 'dssd'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWD', 'root'),
+        'USER': os.getenv('DB_USER', 'german'),
+        'PASSWORD': os.getenv('DB_PASSWD', 'german123'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
@@ -149,7 +150,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-BONITA_URL = 'http://localhost:8080/bonita'
+BONITA_URL = 'http://app.bonita.com:80/bonita'
 # BONITA_URL = 'http://localhost:18925/bonita'
 
 BONITA_USERNAME = 'walter.bates'

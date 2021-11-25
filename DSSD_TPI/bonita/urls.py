@@ -42,5 +42,9 @@ bonita_urls = [
         name='email'
     ),
     url(r'^', include(router.urls)),
-
+    url(
+        r'^all-countries',
+        EmailView.as_view(),
+        name='all-countries'
+    ),
 ]

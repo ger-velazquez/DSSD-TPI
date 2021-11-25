@@ -197,6 +197,14 @@ class ValidateRegistrationFormView(APIView):
                 )
 
 
+class AllCountriesView(APIView):
+    serializer_class = ""
+
+    def get(self,request):
+
+        array_of_exports = Export.objects.all()
+        
+
 class EmailView(APIView):
     serializer_class = EmailSerializer
 
