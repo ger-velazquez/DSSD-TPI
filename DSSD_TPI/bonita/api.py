@@ -53,8 +53,6 @@ class BonitaProcessView(APIView):
                 data = ContentFile(base64.b64decode(pdfstr))  
                 file_name = "'statute." + ext
                 anon.statute.save(file_name, data, save=True)
-
-                
                 
                 for a in self.request.data['form']['partners']:
                     associate = Associate.create(
@@ -124,7 +122,6 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = SocietyRegistrationSerializer
     http_method_names = ['get']
 
-
     def get_queryset(self):
         hash = self.request.query_params.get('hash', None)
         id = self.request.query_params.get('id', None)
@@ -142,7 +139,6 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
 
 class ValidateRegistrationFormView(APIView):
     serializer_class = ValidateRegistrationFormSerializer
-
 
     def post(self, request):
 
@@ -164,6 +160,7 @@ class ValidateRegistrationFormView(APIView):
                     society.save()
                     #aca setea
                     bonita.set_var(2,"True")
+                    bonita.set_var(4,society.anonymous_society.email)
 
                 else:
                     st = Status.objects.get(id=3)
@@ -174,7 +171,6 @@ class ValidateRegistrationFormView(APIView):
                     society.observation = observation
                     society.save()
                 
-
                 #aca avanza
                 bonita.get_human_task()
                 bonita.assign_task()
@@ -275,9 +271,9 @@ class ValidateTramiteView(APIView):
                 if status_data == 'reject':
                     bonita.set_var(3,"False")
 
-                #bonita.get_human_task()
-                #bonita.assign_task()
-                #bonita.execute_task()
+                bonita.get_human_task()
+                bonita.assign_task()
+                bonita.execute_task()
 
                 return Response(
                         {
