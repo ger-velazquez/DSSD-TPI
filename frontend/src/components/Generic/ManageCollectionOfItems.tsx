@@ -40,16 +40,16 @@ export class ManageCollectionOfItems extends React.Component<Props, State> {
 
                     <Col xs="6" md="6" sm="6">
                       <div className="d-flex justify-content-end flew-row" >
-                          <div onClick={() => this.props.handleUpdate(element.societyRegistration.id, ManageCollectionActions.accept)}>
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                            />
-                          </div>
-                          <div className="pl-3"  onClick={() => this.props.handleUpdate(element.societyRegistration.id, ManageCollectionActions.reject)}>
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                              />
-                          </div>
+                        <div onClick={() => this.props.handleUpdate(element.societyRegistration.id, ManageCollectionActions.accept)}>
+                          <FontAwesomeIcon
+                            icon={faCheck}
+                          />
+                        </div>
+                        <div className="pl-3" onClick={() => this.props.handleUpdate(element.societyRegistration.id, ManageCollectionActions.reject)}>
+                          <FontAwesomeIcon
+                            icon={faTimes}
+                          />
+                        </div>
                       </div>
                     </Col>
                   </Row>

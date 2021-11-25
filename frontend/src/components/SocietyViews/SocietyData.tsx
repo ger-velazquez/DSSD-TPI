@@ -21,7 +21,7 @@ export class SocietyData extends React.Component<Props, State> {
           <span className="font-weight-bold "> Nombre: </span>  {societyData.name}
         </div>
         <div className="mb-3 " >
-          <span className="font-weight-bold "> Fecha de Creacion: </span> {societyData.creationDate?.toISOString().substring(0, 10)}
+          <span className="font-weight-bold "> Fecha de Creacion: </span> {societyData.creationDate}
         </div>
 
         <div className="mb-3 " >

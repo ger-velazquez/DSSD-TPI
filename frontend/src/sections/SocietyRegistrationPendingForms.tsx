@@ -31,11 +31,10 @@ export class SocietyRegistrationPendingForms extends React.Component<Props, Stat
   }
 
   async componentDidMount() {
-    // const response: GenericHttpResponse<SocietyRegistrationWithForm[]> = await SocietyService.getPendingForms();
-    // if (response.status) {
-    if (true) {
-      // const updatedPendingForms = response.payload;
-      const updatedPendingForms = mockedPendingForms;
+    const response: SocietyRegistrationWithForm[] | any= await SocietyService.getPendingForms();
+    if (response) {
+      const updatedPendingForms = response;
+      // const updatedPendingForms = mockedPendingForms;
       this.setState({
         pendingForms: updatedPendingForms
       })
