@@ -252,7 +252,14 @@ class BonitaService:
             data ={  
                 "type": "java.lang.String",
                 "value": str(value)
-            }        
+            }   
+
+        elif(var == 5):
+            url = url + '/plazoDeCorreccionEnMesaDeEntrada'
+            data ={  
+                "type": "java.lang.Long",
+                "value": str(value)
+            }            
 
         cookies = {
             'JSESSIONID': self.sessionid,

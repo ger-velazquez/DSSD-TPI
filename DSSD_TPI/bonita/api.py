@@ -164,6 +164,11 @@ class ValidateRegistrationFormView(APIView):
 
                 else:
                     st = Status.objects.get(id=3)
+                    
+                    time_H = int(request.data.get('time', None))
+                    time_M = 3600000 * time_H
+                    bonita.set_var(5, time_M)
+
                     society.status = st
                     society.save()
 
