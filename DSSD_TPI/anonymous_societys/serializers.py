@@ -44,7 +44,7 @@ class SocietyRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SocietyRegistration
-        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'associate')
+        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'qr', 'associate')
 
 
 STATUS_CHOICES =( 
@@ -83,6 +83,30 @@ class ValidateTramiteSerializer(serializers.Serializer):
 class EmailSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     content = serializers.CharField()
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value
+
+class GenerateFileNumberSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value
+
+class EstampilladoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
 
     def validate_id(self, value):
         try:

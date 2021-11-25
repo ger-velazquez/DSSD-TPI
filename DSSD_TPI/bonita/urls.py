@@ -7,7 +7,8 @@ from bonita.api import (
     ValidateRegistrationFormView,
     EmailView,
     ValidateTramiteView,
-    # EstampilladoView
+    GenerateFileNumberView,
+    EstampilladoView
 )
 
 app_name = "bonita"
@@ -31,11 +32,16 @@ bonita_urls = [
         ValidateTramiteView.as_view(),
         name='validate-tramite'
     ),
-    # url(
-    #     r'^estampillado',
-    #     EstampilladoView.as_view(),
-    #     name='estampillado'
-    # ),
+    url(
+        r'^estampillado',
+        EstampilladoView.as_view(),
+        name='estampillado'
+    ),
+    url(
+        r'^generate-file-number',
+        GenerateFileNumberView.as_view(),
+        name='generate-file-number'
+    ),
     url(
         r'^email',
         EmailView.as_view(),

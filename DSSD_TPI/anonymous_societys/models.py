@@ -68,6 +68,7 @@ class SocietyRegistration(models.Model):
     file_number = models.CharField(max_length=255, null=True, unique=True)
     date_created = models.DateField(auto_now_add=True)
     hash = models.CharField(max_length=255, null=True)
+    qr = models.ImageField(upload_to='qr_images/', null=True)
 
     def __str__(self):
         return str(self.anonymous_society) + ' -- ' + str(self.status)

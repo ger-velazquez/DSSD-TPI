@@ -18,28 +18,58 @@ class BonitaService:
         self.human_task_id = ''
         self.display_name = ''
         self.state = ''
+        self.userid = ''
 
-    def login(self):
-        data = {
-            'username': settings.BONITA_USERNAME,
-            'password': settings.BONITA_PASSWORD,
-            }
+    def get_sessionid(self):
 
-        url = '{}/{}'.format(self.url, 'loginservice')
+        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'jsessionid'))
 
-        res = requests.post(
+        res = requests.get(
             url,
-            data=data,
             headers={
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-type": "application/json",
             }
         )
 
-        self.sessionid = res.cookies.get('JSESSIONID')
-        self.token = res.cookies.get('X-Bonita-API-Token')
+        self.sessionid = res.json()[0].get('value')
+        return True 
 
-        return True
+    def get_token(self):
 
+        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'token'))
+
+        res = requests.get(
+            url,
+            headers={
+                "Content-type": "application/json",
+            }
+        )
+
+        self.token = res.json()[0].get('value')  
+        return True      
+
+
+    def get_userid(self):
+
+        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'usuarioid'))
+
+        res = requests.get(
+            url,
+            headers={
+                "Content-type": "application/json",
+            }
+        )
+
+        self.userid = res.json()[0].get('value') 
+        return True 
+
+    def login(self):
+
+        if( self.get_sessionid and self.get_token):
+            self.get_userid
+            return True
+        
+        return False
 
     def get_process_id(self):
 
@@ -147,7 +177,7 @@ class BonitaService:
         }
 
         data = {
-             "assigned_id": 1
+             "assigned_id": str(self.userid)
         }
 
         res = requests.put(
@@ -216,6 +246,13 @@ class BonitaService:
                 "type": "java.lang.Boolean",
                 "value": str(value)
             }
+           
+        elif(var == 4):
+            url = url + '/emailSA'
+            data ={  
+                "type": "java.lang.String",
+                "value": str(value)
+            }        
 
         cookies = {
             'JSESSIONID': self.sessionid,
