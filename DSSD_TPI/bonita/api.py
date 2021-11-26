@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from bonita.utils import send_email
 from rest_framework.views import APIView
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -14,13 +15,21 @@ from PIL import Image
 from io import BytesIO
 import os
 
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from googleapiclient.http import MediaFileUpload
+
 from anonymous_societys.serializers import (
     SocietyRegistrationSerializer,
     ValidateRegistrationFormSerializer,
     EmailSerializer,
     ValidateTramiteSerializer,
     GenerateFileNumberSerializer,
-    EstampilladoSerializer
+    EstampilladoSerializer,
+    GenerateFolderSerializer
 )
 
 bonita = BonitaService()
@@ -221,28 +230,8 @@ class EmailView(APIView):
         id = request.data.get('id', None)
 
         try:
-            society = SocietyRegistration.objects.get(id=id)
             
-            society.anonymous_society.email
-
-            import smtplib
-
-            FROM = settings.EMAIL_USER
-            TO = society.anonymous_society.email
-            SUBJECT = 'dssd'
-            TEXT = content
-
-            # Prepare actual message
-            message = 'From: {}\r\nTo: {}\r\nSubject: {}\r\n{}'.format(FROM, TO, SUBJECT,TEXT)
-
-            print (message)
-
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.ehlo()
-            server.starttls()
-            server.login(settings.EMAIL_USER, settings.EMAIL_PASS)
-            server.sendmail(FROM, TO, message)
-            server.close()
+            send_email(id, content)
 
             return Response(
                     {
@@ -414,6 +403,142 @@ class EstampilladoView(APIView):
 
             else:
                 raise Exception(res.json())
+
+
+            return Response(
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
+            )
+           
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class GenerateFolderView(APIView):
+    serializer_class = GenerateFolderSerializer
+
+    def create_folder(self, service, society):
+
+        file_metadata = {
+        'name': society.file_number,
+        'mimeType': 'application/vnd.google-apps.folder'
+        }
+        file = service.files().create(body=file_metadata,
+                                            fields='id').execute()
+        print ('Folder ID: %s' % file.get('id'))
+
+        payload = {
+            "role": "reader",
+            "type": "anyone"
+        }
+        service.permissions().create(fileId=file.get('id'), body=payload).execute()
+
+        return file.get('id')
+
+    def upload_file(self, service, folder_id, society):
+
+        from .utils import create_pdf
+
+        file_metadata = {
+        'name': 'estatuto.pdf',
+        'parents': [folder_id]
+        }
+        media = MediaFileUpload(society.anonymous_society.statute.file.name,
+                                mimetype='application/pdf',
+                                resumable=True)
+        file = service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+
+        print ('File ID: %s' % file.get('id'))
+
+        create_pdf(society)
+
+        pdf = open("mypdf.pdf", "rb")
+                    
+        file_metadata = {
+        'name': 'info_publica.pdf',
+        'parents': [folder_id]
+        }
+        media = MediaFileUpload('./' + pdf.name,
+                                mimetype='application/pdf',
+                                resumable=True)
+        file = service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+
+        print ('File ID: %s' % file.get('id'))
+
+        os.remove("mypdf.pdf") 
+
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        id = request.data.get('id', None)
+
+        try:
+            society = SocietyRegistration.objects.get(id=id)
+
+            # If modifying these scopes, delete the file token.json.
+            SCOPES = ['https://www.googleapis.com/auth/drive']
+
+            """Shows basic usage of the Drive v3 API.
+            Prints the names and ids of the first 10 files the user has access to.
+            """
+            creds = None
+            # The file token.json stores the user's access and refresh tokens, and is
+            # created automatically when the authorization flow completes for the first
+            # time.
+            if os.path.exists('token.json'):
+                creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+            # If there are no (valid) credentials available, let the user log in.
+            if not creds or not creds.valid:
+                if creds and creds.expired and creds.refresh_token:
+                    creds.refresh(Request())
+                else:
+                    flow = InstalledAppFlow.from_client_secrets_file(
+                        'credentials.json', SCOPES)
+                    creds = flow.run_local_server(port=8000)
+                # Save the credentials for the next run
+                with open('token.json', 'w') as token:
+                    token.write(creds.to_json())
+
+            service = build('drive', 'v3', credentials=creds)
+
+            # Call the Drive v3 API
+            results = service.files().list(
+                pageSize=10, fields="nextPageToken, files(id, name)").execute()
+            items = results.get('files', [])
+
+            if not items:
+                print('No files found.')
+            else:
+                print('Files:')
+                for item in items:
+                    print(u'{0} ({1})'.format(item['name'], item['id']))
+
+            folder_id = self.create_folder(service, society)
+
+            self.upload_file(service, folder_id, society)
+
+            content = ('Se ha generado correctamente la carpeta digital.\n \n'
+                        'Para acceder a la carpeta en Google Drive ingresa al siguiente link: https://drive.google.com/drive/folders/' + folder_id)
+
+            send_email(id, content)
 
 
             return Response(
