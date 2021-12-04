@@ -97,6 +97,13 @@ export class Login extends React.Component<Props, State> {
             <button type="submit" onClick={() => BonitaService.getUserInformation("")}> User Data </button>
           </div>
         </Row>
+
+        <Row className="mb-3 d-flex justify-content-center">
+          <div>
+            <button type="submit" onClick={() => BonitaService.getActiveProcess()}> Active Process </button>
+          </div>
+        </Row>
+
       </Container>
     );
   }

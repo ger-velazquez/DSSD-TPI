@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
 from bonita.api import (
+    AllCountriesView,
     BonitaProcessView,
     SocietyRegistrationViewSet,
     ValidateRegistrationFormView,
@@ -50,7 +51,7 @@ bonita_urls = [
     url(r'^', include(router.urls)),
     url(
         r'^all-countries',
-        EmailView.as_view(),
+        AllCountriesView.as_view(),
         name='all-countries'
     ),
 ]

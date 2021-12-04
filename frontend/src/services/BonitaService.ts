@@ -3,7 +3,7 @@ import { UserLogin } from "../interfaces/LoginInterfaces";
 import LocalStorageService, { CacheContent } from "./LocalStorageService";
 import Cookies from "js-cookie";
 import { bonitaUrl, userGroupAndPathMapped } from "../constants/LoginConstants";
-import { BonitaOrganizationGroups, BonitaSession, BonitaUserInformation } from "../interfaces/BonitaInterfaces";
+import { BonitaOrganizationGroups, BonitaProcessInterface, BonitaSession, BonitaUserInformation } from "../interfaces/BonitaInterfaces";
 
 class BonitaService {
 
@@ -12,10 +12,11 @@ class BonitaService {
     return bonitaToken ? bonitaToken : ""
   }
 
+
   // private saveTokenInLocalStorage() {
   //   const cookiesAsArray: Array<string> = document.cookie.split(';');
   //   const bonitaToken: string = cookiesAsArray[cookiesAsArray.length - 1].split("=")[1];
-    
+
   //   const tokenSaved: CacheContent<string> = {
   //     timestamp: Date.now(),
   //     content: bonitaToken,
@@ -26,18 +27,35 @@ class BonitaService {
   //   LocalStorageService.setItem<CacheContent<string>>(LocalStorageKeys.xBonitaToken, tokenSaved);
   // }
 
-  
+
+  // public async instantiateProcess() {
+  //   var myHeaders = new Headers();
+  //   myHeaders.append("X-Bonita-API-Token", this.getBonitaToken());
+  //   // myHeaders.append("Cookie", "bonita.tenant=1; BOS_Locale=es; JSESSIONID=A9FB18C65A00D71F63914B375ADDD997; X-Bonita-API-Token=1c80b626-1934-4800-bf92-85728565cd6f");
+
+  //   var requestOptions = {
+  //     method: 'POST',
+  //     headers: myHeaders,
+  //     redirect: 'follow'
+  //   };
+
+  //   fetch(`http://${bonitaUrl}/API/bpm/process/9209062777826962689/instantiation`, requestOptions)
+  //     .then(response => response.text())
+  //     .then(result => console.log(result))
+  //     .catch(error => console.log('error', error));
+  // }
+
   private getUserInformationInLocalStorage(): BonitaUserInformation {
     const response = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation).content
     console.log(response);
-    
+
     return response;
   }
 
   private removeUserInformationFromLocalStorage() {
     return LocalStorageService.removeItem(LocalStorageKeys.userInformation);
   }
-  
+
   private saveUserInformationInLocalStorage(bonitaToken: string, currentUserId: string, currentUserGroup: string, currentUserHomePath: string) {
     const bonitaUserInformation: BonitaUserInformation = {
       bonitaToken,
@@ -56,16 +74,16 @@ class BonitaService {
     }
     LocalStorageService.setItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation, bonitaLocalStorage);
   }
-  
+
   private async setUpLogin() {
     const bonitaToken: string = this.getBonitaToken();
     const currentUserId: string = await (await this.getCurrentSessionId()).user_id;
     const userGroup: string = (await (this.getUserInformation(currentUserId)))[0].group_id.displayName;
+
     const currentUserHomePath = userGroupAndPathMapped[userGroup as BonitaOrganizationGroups]
     this.saveUserInformationInLocalStorage(bonitaToken, currentUserId, userGroup, currentUserHomePath);
 
     const urlRedirect: string = `http://app.bonita.com:3001${this.getUserInformationInLocalStorage().currentUserHomePath}`
-    console.log(urlRedirect);
     window.location.replace(urlRedirect);
   }
 
@@ -82,11 +100,11 @@ class BonitaService {
 
     };
 
-    const response = await fetch( url, requestOptions ).then( data => data.json() )
+    const response = await fetch(url, requestOptions).then(data => data.json())
     console.log(response);
     return response;
   }
-  
+
   public async getCurrentSessionId(): Promise<BonitaSession> {
     let myHeaders: HeadersInit = new Headers();
     myHeaders.append("X-Bonita-API-Token", this.getBonitaToken().toString());
@@ -99,7 +117,7 @@ class BonitaService {
 
     };
 
-    const response: BonitaSession = await fetch(`http://${bonitaUrl}/API/system/session/unusedid`, requestOptions).then( data => data.json() )
+    const response: BonitaSession = await fetch(`http://${bonitaUrl}/API/system/session/unusedid`, requestOptions).then(data => data.json())
     return response;
   }
 
@@ -130,18 +148,16 @@ class BonitaService {
         }
         else {
           this.setUpLogin();
-
-          
         }
       })
-      // .catch(function (error) {
-      //   console.log();
-      //   console.log('Hubo un problema con la petición Fetch:' + error.message);
-      // });
+    // .catch(function (error) {
+    //   console.log();
+    //   console.log('Hubo un problema con la petición Fetch:' + error.message);
+    // });
   }
 
   public async logOut() {
-    
+
     const myHeaders = new Headers();
     myHeaders.append("Cookie", "JSESSIONID=BB139426EE4B663352DC87F917DA59B1");
 
@@ -165,10 +181,9 @@ class BonitaService {
   }
 
 
-  public getActiveProcess() {
+  public async getActiveProcess(): Promise<Array<BonitaProcessInterface>> {
     var myHeaders = new Headers();
-    myHeaders.append("X-Bonita-API-Token", "99b949b3-bb2a-484e-96a1-1a6a035e5e05");
-    myHeaders.append("Cookie", `bonita.tenant=1; BOS_Locale=es; JSESSIONID=E81BCC0E3A1CBB255D65EA50C257CA36; X-Bonita-API-Token=${this.getBonitaToken()}`);
+    myHeaders.append("X-Bonita-API-Token", this.getBonitaToken());
 
     var requestOptions: RequestInit = {
       method: 'GET',
@@ -178,10 +193,10 @@ class BonitaService {
 
     };
 
-    fetch(`http://${bonitaUrl}/API/bpm/process?s=Proceso%20de%20Inscripcion%20de%20SA`, requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
+    const response: Array<BonitaProcessInterface> = await fetch(`http://${bonitaUrl}/API/bpm/process?s=Proceso%20de%20Inscripcion%20de%20SA`, requestOptions).then(data => data.json());
+    console.log(response);
+    return response;
+
   }
 
 }

@@ -8,6 +8,8 @@ import { ManageCollectionActions } from '../../interfaces/SocietyRegistrationInt
 export interface Props {
   collection: Array<SocietyRegistrationWithForm>;
   showDataInModal: (form: SocietyRegistrationWithForm) => void;
+  handleAccept?: () => void;
+  handleReject?: () => void;
   handleUpdate: (registrationId: number, action: ManageCollectionActions) => void;
 }
 

@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from collections import Counter
+
 from .bonita_service import BonitaService
 from anonymous_societys.models import *
 from django.conf import settings
@@ -25,6 +27,7 @@ from anonymous_societys.serializers import (
 
 bonita = BonitaService()
 
+
 class BonitaProcessView(APIView):
 
     def post(self, request):
@@ -34,12 +37,12 @@ class BonitaProcessView(APIView):
 
             if logged:
                 anon = AnonymousSociety.create(
-                    name = self.request.data['form']['name'],
-                    real_address = self.request.data['form']['realDomicile'],
-                    legal_address = self.request.data['form']['legalDomicile'],
-                    email = self.request.data['form']['email'],
+                    name=self.request.data['form']['name'],
+                    real_address=self.request.data['form']['realDomicile'],
+                    legal_address=self.request.data['form']['legalDomicile'],
+                    email=self.request.data['form']['email'],
                     # format day YYYY-MM-DD
-                    date_created = self.request.data['form']['creationDate'],
+                    date_created=self.request.data['form']['creationDate'],
                 )
 
                 society_re = SocietyRegistration.create(
@@ -50,10 +53,10 @@ class BonitaProcessView(APIView):
                 format, pdfstr = statute_base64.split(';base64,')
                 ext = format.split('/')[-1]
 
-                data = ContentFile(base64.b64decode(pdfstr))  
+                data = ContentFile(base64.b64decode(pdfstr))
                 file_name = "'statute." + ext
                 anon.statute.save(file_name, data, save=True)
-                
+
                 for a in self.request.data['form']['partners']:
                     associate = Associate.create(
                         name=a['firstName'],
@@ -67,10 +70,10 @@ class BonitaProcessView(APIView):
 
                 if not self.request.data['form']['exportLocations']:
                     Export.create(
-                            country='Argentina',
-                            state=None,
-                            anonymous_society=anon
-                        )
+                        country='Argentina',
+                        state=None,
+                        anonymous_society=anon
+                    )
                 else:
                     for e in self.request.data['form']['exportLocations']:
                         export = Export.create(
@@ -86,8 +89,8 @@ class BonitaProcessView(APIView):
                 #     {"name":"idSolicitudSociedad","value": society_re.id}
                 # ])
 
-                bonita_set_variables = bonita.set_var(1,society_re.id)
-                #bonita_set_variables = 200
+                bonita_set_variables = bonita.set_var(1, society_re.id)
+                # bonita_set_variables = 200
 
                 if bonita_set_variables == 200:
 
@@ -129,9 +132,9 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
 
         if hash:
             return SocietyRegistration.objects.filter(hash=hash)
-        if id: 
+        if id:
             return SocietyRegistration.objects.filter(id=id)
-        if file_number: 
+        if file_number:
             return SocietyRegistration.objects.filter(file_number=file_number)
         else:
             return SocietyRegistration.objects.filter(status=1)
@@ -158,9 +161,9 @@ class ValidateRegistrationFormView(APIView):
                     st = Status.objects.get(id=2)
                     society.status = st
                     society.save()
-                    #aca setea
-                    bonita.set_var(2,"True")
-                    bonita.set_var(4,society.anonymous_society.email)
+                    # aca setea
+                    bonita.set_var(2, "True")
+                    bonita.set_var(4, society.anonymous_society.email)
 
                 else:
                     st = Status.objects.get(id=3)
@@ -170,21 +173,21 @@ class ValidateRegistrationFormView(APIView):
                 if observation:
                     society.observation = observation
                     society.save()
-                
-                #aca avanza
+
+                # aca avanza
                 bonita.get_human_task()
                 bonita.assign_task()
                 bonita.execute_task()
 
                 return Response(
-                        {
-                            "status": True,
-                            "payload": {},
-                            "errors": [],
-                        },
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
                     status=status.HTTP_200_OK
-            )
-            
+                )
+
             except Exception as e:
                 return Response(
                     {
@@ -199,10 +202,56 @@ class ValidateRegistrationFormView(APIView):
 class AllCountriesView(APIView):
     serializer_class = ""
 
-    def get(self,request):
+    def get(self, request):
 
-        array_of_exports = Export.objects.all()
-        
+        try:
+            array_of_exports = Export.objects.all()
+            countries_names = list(
+                map(lambda country_object: country_object.country.name, array_of_exports))
+            countries_occurrences = dict(Counter(countries_names))
+
+#             for country_key in list(countries_occurrences.keys()):
+#                   ...: url = "https://countries.trevorblades.com"
+#    ...:    ...:
+#    ...:    ...: json = {'query': '''
+#    ...:    ...: {
+#    ...:    ...:   country(code: "DZ") {
+#    ...:    ...:     name
+#    ...:    ...:     native
+#    ...:    ...:     emoji
+#    ...:    ...:     currency
+#    ...:    ...:     languages {
+#    ...:    ...:       code
+#    ...:    ...:       name
+#    ...:    ...:     }
+#    ...:    ...:   }
+#    ...:    ...: }
+#    ...:    ...: '''}
+#    ...:    ...:
+#    ...:    ...: r = requests.post(url, json=json)
+#    ...:    ...: print(r.json())
+#    ...:   Luego deberia hacer un for iterando por las keys y crear un nuevo diccionario con la data de lenguaje y continente.
+
+
+            return Response(
+                {
+                    "status": True,
+                    "payload": countries_occurrences,
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 
 class EmailView(APIView):
     serializer_class = EmailSerializer
@@ -217,7 +266,7 @@ class EmailView(APIView):
 
         try:
             society = SocietyRegistration.objects.get(id=id)
-            
+
             society.anonymous_society.email
 
             import smtplib
@@ -228,9 +277,10 @@ class EmailView(APIView):
             TEXT = content
 
             # Prepare actual message
-            message = 'From: {}\r\nTo: {}\r\nSubject: {}\r\n{}'.format(FROM, TO, SUBJECT,TEXT)
+            message = 'From: {}\r\nTo: {}\r\nSubject: {}\r\n{}'.format(
+                FROM, TO, SUBJECT, TEXT)
 
-            print (message)
+            print(message)
 
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()
@@ -240,14 +290,14 @@ class EmailView(APIView):
             server.close()
 
             return Response(
-                    {
-                        "status": True,
-                        "payload": {},
-                        "errors": [],
-                    },
-                    status=status.HTTP_200_OK
+                {
+                    "status": True,
+                    "payload": {},
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
             )
-           
+
         except Exception as e:
             return Response(
                 {
@@ -262,7 +312,6 @@ class EmailView(APIView):
 class ValidateTramiteView(APIView):
     serializer_class = ValidateTramiteSerializer
 
-
     def post(self, request):
 
         serializer = self.serializer_class(data=request.data)
@@ -273,25 +322,25 @@ class ValidateTramiteView(APIView):
 
         logged = bonita.login()
 
-        if logged:        
+        if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
                 if status_data == 'reject':
-                    bonita.set_var(3,"False")
+                    bonita.set_var(3, "False")
 
                 bonita.get_human_task()
                 bonita.assign_task()
                 bonita.execute_task()
 
                 return Response(
-                        {
-                            "status": True,
-                            "payload": {},
-                            "errors": [],
-                        },
-                        status=status.HTTP_200_OK
+                    {
+                        "status": True,
+                        "payload": {},
+                        "errors": [],
+                    },
+                    status=status.HTTP_200_OK
                 )
-            
+
             except Exception as e:
                 return Response(
                     {
@@ -306,7 +355,6 @@ class ValidateTramiteView(APIView):
 class GenerateFileNumberView(APIView):
     serializer_class = GenerateFileNumberSerializer
 
-
     def post(self, request):
 
         serializer = self.serializer_class(data=request.data)
@@ -314,20 +362,19 @@ class GenerateFileNumberView(APIView):
 
         id = request.data.get('id', None)
 
-
         try:
             society = SocietyRegistration.objects.get(id=id)
             society.generate_file_number()
 
             return Response(
-                    {
-                        "status": True,
-                        "payload": {},
-                        "errors": [],
-                    },
+                {
+                    "status": True,
+                    "payload": {},
+                    "errors": [],
+                },
                 status=status.HTTP_200_OK
-        )
-        
+            )
+
         except Exception as e:
             return Response(
                 {
@@ -341,7 +388,6 @@ class GenerateFileNumberView(APIView):
 
 class EstampilladoView(APIView):
     serializer_class = EstampilladoSerializer
-
 
     def post(self, request):
 
@@ -358,7 +404,6 @@ class EstampilladoView(APIView):
                 'password': 'bonita2021',
             }
 
-
             res = requests.post(
                 'https://dssd-estampillado.herokuapp.com/api-token-auth/',
                 data=data,
@@ -370,14 +415,14 @@ class EstampilladoView(APIView):
             if res.status_code == 200:
                 token_jwt = res.json()['token']
 
-                statute_base64 = base64.b64encode(society.anonymous_society.statute.file.read())
+                statute_base64 = base64.b64encode(
+                    society.anonymous_society.statute.file.read())
                 statute_str = statute_base64.decode('utf-8')
 
-                data = { 
+                data = {
                     "statute": statute_str,
                     "file_number": society.file_number
                 }
-
 
                 res = requests.post(
                     'https://dssd-estampillado.herokuapp.com/api/hash',
@@ -398,11 +443,11 @@ class EstampilladoView(APIView):
                     im.save('image.png', 'PNG')
 
                     name_file = 'qr_' + res.json()['hash'] + '.png'
-                    
+
                     with open("image.png", "rb") as image_file:
                         society.qr.save(name_file, image_file, save=True)
-                    
-                    os.remove("image.png") 
+
+                    os.remove("image.png")
 
                 else:
                     raise Exception(res.json())
@@ -410,16 +455,15 @@ class EstampilladoView(APIView):
             else:
                 raise Exception(res.json())
 
-
             return Response(
-                    {
-                        "status": True,
-                        "payload": {},
-                        "errors": [],
-                    },
-                    status=status.HTTP_200_OK
+                {
+                    "status": True,
+                    "payload": {},
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
             )
-           
+
         except Exception as e:
             return Response(
                 {

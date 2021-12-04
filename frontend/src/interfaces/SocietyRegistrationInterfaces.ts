@@ -58,7 +58,9 @@ export interface SocietyRegistrationPendingFormsResponse {
   status: {
     id: number;
     name: string;
-  }
+  },
+  qr?: string;
+  is_invalid?: boolean;
 }
 
 // export interface ManageCollectionInterface {

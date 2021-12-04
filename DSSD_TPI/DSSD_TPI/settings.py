@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-7&1@wbi&7#a6ba)6@##n@cp-c55ix5)f11smi2k2#v945%p9e@
 DEBUG = True
 
 # Application definition
-ALLOWED_HOSTS=['app.bonita.com', 'localhost']
+ALLOWED_HOSTS=['app.bonita.com', 'localhost', '127.0.0.1']
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
      'http://app.bonita.com:3001',

@@ -64,7 +64,7 @@ class BonitaService:
         return True 
 
     def login(self):
-
+        #con este metodo recibir los datos del frontend y actualizar las variables de self.
         if( self.get_sessionid and self.get_token):
             self.get_userid
             return True

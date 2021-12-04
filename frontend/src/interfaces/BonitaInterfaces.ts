@@ -2,6 +2,21 @@ export enum BonitaPaths {
   login = "loginservice"
 }
 
+export interface BonitaProcessInterface {
+  activationState?: string;
+  actorinitiatorid?: string;
+  configurationState?: string;
+  deployedBy?: string;
+  deploymentDate?: string;
+  description?: string;
+  displayDescription?: string;
+  displayName?: string;
+  id: string;
+  last_update_date?: string;
+  name?: string;
+  version?: string;
+}
+
 export interface BonitaSession {
   branding_version: string;
   conf: string;

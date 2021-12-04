@@ -42,7 +42,7 @@ export class SocietyRegistrationPendingForms extends React.Component<Props, Stat
   }
 
   async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string) {
-    const response: GenericHttpResponse<any> =   await SocietyService.updatePendingForm(registrationID, action, reason);
+    const response: GenericHttpResponse<any> = await SocietyService.updatePendingForm(registrationID, action, reason);
     if (response.status) {
       AlertUtils.notifyWithCallback(
         AlertTypes.success,
