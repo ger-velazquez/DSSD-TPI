@@ -116,3 +116,16 @@ class EstampilladoSerializer(serializers.Serializer):
                 ("There is no society with this ID")
             )
         return value
+
+
+class GenerateFolderSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+    def validate_id(self, value):
+        try:
+            SocietyRegistration.objects.get(id=value)
+        except SocietyRegistration.DoesNotExist:
+            raise serializers.ValidationError(
+                ("There is no society with this ID")
+            )
+        return value

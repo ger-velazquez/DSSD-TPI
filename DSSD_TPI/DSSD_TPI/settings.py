@@ -156,3 +156,6 @@ BONITA_URL = 'http://app.bonita.com:80/bonita'
 BONITA_USERNAME = 'walter.bates'
 
 BONITA_PASSWORD = 'bpm'
+
+EMAIL_USER = 'dssd.grupo4.2021@gmail.com'
+EMAIL_PASS = 'grupo4dssdunlp'
