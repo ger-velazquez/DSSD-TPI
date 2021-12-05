@@ -44,7 +44,7 @@ class SocietyRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SocietyRegistration
-        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'qr', 'associate')
+        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'qr', 'caseid', 'associate')
 
 
 STATUS_CHOICES =( 
@@ -56,6 +56,7 @@ class ValidateRegistrationFormSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices = STATUS_CHOICES)
     id = serializers.IntegerField()
     observation = serializers.CharField(required=False, allow_blank=True)
+    time = serializers.CharField()
 
     def validate_id(self, value):
         try:
@@ -129,3 +130,9 @@ class GenerateFolderSerializer(serializers.Serializer):
                 ("There is no society with this ID")
             )
         return value
+
+
+class LoginSerializer(serializers.Serializer):
+    sessionid = serializers.CharField()
+    token = serializers.CharField()
+    userid = serializers.CharField()

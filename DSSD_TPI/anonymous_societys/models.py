@@ -69,6 +69,7 @@ class SocietyRegistration(models.Model):
     date_created = models.DateField(auto_now_add=True)
     hash = models.CharField(max_length=255, null=True)
     qr = models.ImageField(upload_to='qr_images/', null=True)
+    caseid = models.IntegerField(null=True)
 
     def __str__(self):
         return str(self.anonymous_society) + ' -- ' + str(self.status)

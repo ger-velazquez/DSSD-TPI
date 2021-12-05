@@ -11,65 +11,61 @@ class BonitaService:
 
     def __init__(self):
         self.url = settings.BONITA_URL
-        self.token = ''
-        self.sessionid = ''
+        self.token = None
+        self.sessionid = None
         self.process_id = ''
         self.case_id = ''
         self.human_task_id = ''
         self.display_name = ''
         self.state = ''
-        self.userid = ''
+        self.userid = None
 
-    def get_sessionid(self):
+    # def get_sessionid(self):
 
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'jsessionid'))
+    #     url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'jsessionid'))
 
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
+    #     res = requests.get(
+    #         url,
+    #         headers={
+    #             "Content-type": "application/json",
+    #         }
+    #     )
 
-        self.sessionid = res.json()[0].get('value')
-        return True 
+    #     self.sessionid = res.json()[0].get('value')
+    #     return True 
 
-    def get_token(self):
+    # def get_token(self):
 
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'token'))
+    #     url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'token'))
 
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
+    #     res = requests.get(
+    #         url,
+    #         headers={
+    #             "Content-type": "application/json",
+    #         }
+    #     )
 
-        self.token = res.json()[0].get('value')  
-        return True      
+    #     self.token = res.json()[0].get('value')  
+    #     return True      
 
 
-    def get_userid(self):
+    # def get_userid(self):
 
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'usuarioid'))
+    #     url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'usuarioid'))
 
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
+    #     res = requests.get(
+    #         url,
+    #         headers={
+    #             "Content-type": "application/json",
+    #         }
+    #     )
 
-        self.userid = res.json()[0].get('value') 
-        return True 
+    #     self.userid = res.json()[0].get('value') 
+    #     return True 
 
-    def login(self):
+    def is_logged_in(self):
 
-        if( self.get_sessionid and self.get_token):
-            self.get_userid
-            return True
-        
-        return False
+        return (self.sessionid is not None and self.token is not None)
 
     def get_process_id(self):
 

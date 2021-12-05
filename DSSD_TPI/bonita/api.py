@@ -29,17 +29,56 @@ from anonymous_societys.serializers import (
     ValidateTramiteSerializer,
     GenerateFileNumberSerializer,
     EstampilladoSerializer,
-    GenerateFolderSerializer
+    GenerateFolderSerializer,
+    LoginSerializer
 )
 
 bonita = BonitaService()
 
+class LoginView(APIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            sessionid = request.data.get('sessionid', None)
+            token = request.data.get('token', None)
+            userid = request.data.get('userid', None)
+
+            bonita.sessionid = sessionid
+            bonita.userid = userid
+            bonita.token = token
+
+
+            return Response(
+                {
+                    "status": True,
+                    "payload": {},
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class BonitaProcessView(APIView):
 
     def post(self, request):
-        print(self.request.data)
+
         try:
-            logged = bonita.login()
+            logged = bonita.is_logged_in()
 
             if logged:
                 anon = AnonymousSociety.create(
@@ -91,6 +130,9 @@ class BonitaProcessView(APIView):
                 bonita.get_process_id()
                 bonita.instantiation()
 
+                society_re.caseid = bonita.case_id
+                society_re.save()
+
                 # bonita_set_variables = bonita.set_variables([
                 #     {"name":"idSolicitudSociedad","value": society_re.id}
                 # ])
@@ -135,6 +177,7 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
         hash = self.request.query_params.get('hash', None)
         id = self.request.query_params.get('id', None)
         file_number = self.request.query_params.get('file_number', None)
+        caseid = self.request.query_params.get('caseid', None)
 
         if hash:
             return SocietyRegistration.objects.filter(hash=hash)
@@ -142,6 +185,9 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
             return SocietyRegistration.objects.filter(id=id)
         if file_number: 
             return SocietyRegistration.objects.filter(file_number=file_number)
+        if caseid:
+            caseid = caseid.split(",")
+            return SocietyRegistration.objects.filter(caseid__in=caseid, status=1)
         else:
             return SocietyRegistration.objects.filter(status=1)
 
@@ -158,7 +204,7 @@ class ValidateRegistrationFormView(APIView):
         id = request.data.get('id', None)
         observation = request.data.get('observation', None)
 
-        logged = bonita.login()
+        logged = bonita.is_logged_in()
 
         if logged:
             try:
@@ -265,7 +311,7 @@ class ValidateTramiteView(APIView):
         status_data = request.data.get('status', None)
         id = request.data.get('id', None)
 
-        logged = bonita.login()
+        logged = bonita.is_logged_in()
 
         if logged:        
             try:

@@ -9,8 +9,8 @@ from bonita.api import (
     ValidateTramiteView,
     GenerateFileNumberView,
     EstampilladoView,
-    GenerateFolderView
-    
+    GenerateFolderView,
+    LoginView
 )
 
 app_name = "bonita"
@@ -53,6 +53,11 @@ bonita_urls = [
         r'^generate-folder',
         GenerateFolderView.as_view(),
         name='generate-folder'
+    ),
+        url(
+        r'^login$',
+        LoginView.as_view(),
+        name='login'
     ),
     url(r'^', include(router.urls)),
     url(
