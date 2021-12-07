@@ -138,6 +138,8 @@ class BonitaProcessView(APIView):
                 # ])
 
                 bonita_set_variables = bonita.set_var(1,society_re.id)
+                bonita.set_var(4, society_re.anonymous_society.email)
+
                 #bonita_set_variables = 200
 
                 if bonita_set_variables == 200:
@@ -179,6 +181,8 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
         file_number = self.request.query_params.get('file_number', None)
         caseid = self.request.query_params.get('caseid', None)
 
+        # http://localhost:8080/bonita/API/bpm/humanTask?f=caseId=13
+
         if hash:
             return SocietyRegistration.objects.filter(hash=hash)
         if id: 
@@ -215,14 +219,13 @@ class ValidateRegistrationFormView(APIView):
                     society.save()
                     #aca setea
                     bonita.set_var(2,"True")
-                    bonita.set_var(4,society.anonymous_society.email)
-
                 else:
                     st = Status.objects.get(id=3)
                     
                     time_H = int(request.data.get('time', None))
                     time_M = 3600000 * time_H
                     bonita.set_var(5, time_M)
+                    bonita.set_var(6, str(time_H))
 
                     society.status = st
                     society.save()
@@ -586,6 +589,9 @@ class GenerateFolderView(APIView):
 
             send_email(id, content)
 
+            bonita.get_human_task()
+            bonita.assign_task()
+            bonita.execute_task()
 
             return Response(
                     {
