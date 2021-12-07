@@ -30,6 +30,11 @@ export let defaultValuesForForm: CorporationForm = {
   exportLocations: [],
 }
 
+export let societyWithFormInitializer: SocietyRegistrationWithForm = {
+  societyRegistration: defaultValuesForSocietyRegistration,
+  form: defaultValuesForForm,
+}
+
 export let mockedPendingForms: SocietyRegistrationWithForm[] = [
   {
     societyRegistration: {

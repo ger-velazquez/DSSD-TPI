@@ -6,7 +6,8 @@ import { Login } from "../components/Login/Login";
 import { DeskStaff } from "../components/MesaDeEntrada/DeskStaff";
 import { SAFormV2 } from "../components/SAFormV2";
 import SocietyDescription  from "../components/SocietyViews/SocietyDescription";
-import { BonitaGroupsPath } from "../interfaces/BonitaInterfaces";
+import UpdatedFormWrapper from "../components/UpdatedFormWrapper";
+import { BonitaExtraPath, BonitaGroupsPath } from "../interfaces/BonitaInterfaces";
 import { SocietyRegistrationPaths, SocietyRegistrationRoutes } from "../interfaces/SocietyRegistrationInterfaces";
 import { SocietyRegistrationPendingForms } from "../sections/SocietyRegistrationPendingForms";
 
@@ -55,6 +56,11 @@ export const deskStaff: SocietyRegistrationRoutes = {
   path: BonitaGroupsPath.MesaDeEntrada
 }
 
+export const societyByFormId: SocietyRegistrationRoutes = {
+  societyRegistrationComponent: UpdatedFormWrapper,
+  path: BonitaExtraPath.updatedForm,
+}
+
 export default [
   societyRegistrationForm,
   societyRegistrationPendingForms,
@@ -64,5 +70,6 @@ export default [
   directors,
   notaries,
   applicants,
-  deskStaff
+  deskStaff,
+  societyByFormId
 ]

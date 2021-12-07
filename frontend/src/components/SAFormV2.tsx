@@ -2,7 +2,7 @@ import { Formik, Form, Field } from 'formik';
 import * as React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { defaultValuesForForm } from '../constants/FormConstants';
-import { AlertTypes, CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, GenericHttpResponse, InitialValuesToCollectionsModal, ModalConfiguration, Partner } from '../interfaces/FormInterfaces';
+import { AlertTypes, CorporationForm, CountryAndState, DynamicCollections, DynamicFieldsOperations, GenericHttpResponse, InitialValuesToCollectionsModal, ModalConfiguration, Partner, SocietyRegistrationWithForm } from '../interfaces/FormInterfaces';
 import { GenericInputForm } from './Generic/GenericInputForm';
 import { cloneDeep } from 'lodash';
 import { PartnerFields } from './Generic/PartnerFields';
@@ -19,11 +19,14 @@ import FormService from '../services/FormService';
 import ValidationService from '../services/ValidationService';
 
 
-export interface Props { }
+export interface Props {
+  society?: SocietyRegistrationWithForm;
+}
 
 export interface State {
   validated: boolean;
   corporationForm: CorporationForm;
+  defaultForm: CorporationForm;
   modalConfiguration: ModalConfiguration;
   errorMessage: string;
 }
@@ -31,10 +34,12 @@ export class SAFormV2 extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       validated: false,
       errorMessage: "",
-      corporationForm: defaultValuesForForm,
+      corporationForm: this.props.society?.form ? this.props.society.form : defaultValuesForForm,
+      defaultForm: defaultValuesForForm,
       modalConfiguration: {
         show: false,
         title: "",
@@ -51,6 +56,16 @@ export class SAFormV2 extends React.Component<Props, State> {
     this.addMediaContent = this.addMediaContent.bind(this);
     this.deleteElementInCollection = this.deleteElementInCollection.bind(this);
   }
+
+  componentDidMount() {
+
+    const defaultForm: CorporationForm = this.props.society ? cloneDeep(this.props.society.form) : defaultValuesForForm;
+
+    this.setState({
+      defaultForm
+    })
+  }
+
 
   setLegalRepresentative(partners: Partner[], legalRepresentative: string): Partner[] {
     let updatedPartners = cloneDeep(partners);
@@ -149,6 +164,15 @@ export class SAFormV2 extends React.Component<Props, State> {
     })
   }
 
+  updateStatute() {
+    const updatedForm: CorporationForm = cloneDeep(this.state.corporationForm);
+    updatedForm.statuteOfConformation = null;
+    this.setState({
+      defaultForm: updatedForm,
+      corporationForm: updatedForm,
+    })
+  }
+  
   handleModal(collectionKey: DynamicCollections) {
     let modalConfiguration = { ... this.state.modalConfiguration };
     let specificForm: JSX.Element = (<> </>);
@@ -195,6 +219,9 @@ export class SAFormV2 extends React.Component<Props, State> {
 
   render() {
     const partnersOptions: string[] = this.getPartnersOptions()
+    console.log("ESTADO PA");
+    console.log(this.state.corporationForm);
+
     return (
       <>
         <Container className="mt-4">
@@ -202,7 +229,8 @@ export class SAFormV2 extends React.Component<Props, State> {
             Formulario de Inscripcion para una Sociedad Anonima
           </h1>
           <Formik
-            initialValues={defaultValuesForForm}
+            initialValues={this.state.defaultForm}
+            enableReinitialize
             onSubmit={(form) => this.addMediaContent(form)}
           // validate={(values) => this.handleValidations(values)}
           >
@@ -248,12 +276,28 @@ export class SAFormV2 extends React.Component<Props, State> {
                     </Field>
                   </div>
 
-                  <GenericInputFormWithOnChange
-                    name="statuteOfConformation"
-                    type="file"
-                    accept=".pdf"
-                    labelText="Estatuto de conformacion"
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.handleFile(event, formKey)} />
+
+                  {
+                    this.state.corporationForm.statuteOfConformation == null &&
+                    <GenericInputFormWithOnChange
+                      name="statuteOfConformation"
+                      type="file"
+                      accept=".pdf"
+                      labelText="Estatuto de conformacion"
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.handleFile(event, formKey)} />
+                  }
+
+                  {
+                    this.state.corporationForm.statuteOfConformation !== null &&
+                    <>
+                      <div className="text-center" onClick={() => window.open(this.state.corporationForm.statuteOfConformation! as string, '__blank')?.focus()} style={{ fontWeight: 'bolder' }}>
+                        Ver estatuto
+                      </div>
+                      <div className="text-center" onClick={() => this.updateStatute() }>
+                        Cambiar 
+                      </div>
+                    </>
+                  }
 
                 </Col>
 
@@ -303,9 +347,9 @@ export class SAFormV2 extends React.Component<Props, State> {
 
               {this.state.errorMessage &&
                 <Row className="mb-3 d-flex justify-content-center">
-                    <div style={{ color: 'red' }} >
-                      {this.state.errorMessage}
-                    </div>
+                  <div style={{ color: 'red' }} >
+                    {this.state.errorMessage}
+                  </div>
                 </Row>
               }
 

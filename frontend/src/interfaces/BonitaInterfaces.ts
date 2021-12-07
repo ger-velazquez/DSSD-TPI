@@ -17,6 +17,28 @@ export interface BonitaProcessInterface {
   version?: string;
 }
 
+export interface BonitaActiveCases {
+  end_date: string;
+  id: string;
+  last_update_date: string;
+  processDefinitionId: string;
+  rootCaseId: string;
+  searchIndex1Label: string;
+  searchIndex1Value: string;
+  searchIndex2Label: string;
+  searchIndex2Value: string;
+  searchIndex3Label: string;
+  searchIndex3Value: string;
+  searchIndex4Label: string;
+  searchIndex4Value: string;
+  searchIndex5Label: string;
+  searchIndex5Value: string;
+  start: string;
+  startedBySubstitute: string;
+  started_by: string;
+
+}
+
 export interface BonitaSession {
   branding_version: string;
   conf: string;
@@ -50,4 +72,10 @@ export enum BonitaGroupsPath {
   Escribanos = "/escribanos",
   Geolocalizacion = "/geolocalizacion",
 }
+
+
+export enum BonitaExtraPath {
+  updatedForm = "/solicitantes/:formId"
+}
+
 export type BonitaUsersPath = { [key in BonitaOrganizationGroups]: BonitaGroupsPath }

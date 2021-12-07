@@ -82,6 +82,7 @@ export interface CorporationForm {
   email: string;
   exportLocations: CountryAndState[];
   qr?: string;
+  is_invalid?: boolean;
 }
 
 export interface SocietyRegistrationWithForm {

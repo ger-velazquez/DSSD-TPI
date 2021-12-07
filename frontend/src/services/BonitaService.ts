@@ -3,7 +3,7 @@ import { UserLogin } from "../interfaces/LoginInterfaces";
 import LocalStorageService, { CacheContent } from "./LocalStorageService";
 import Cookies from "js-cookie";
 import { bonitaUrl, userGroupAndPathMapped } from "../constants/LoginConstants";
-import { BonitaOrganizationGroups, BonitaProcessInterface, BonitaSession, BonitaUserInformation } from "../interfaces/BonitaInterfaces";
+import { BonitaActiveCases, BonitaOrganizationGroups, BonitaProcessInterface, BonitaSession, BonitaUserInformation } from "../interfaces/BonitaInterfaces";
 
 class BonitaService {
 
@@ -44,6 +44,7 @@ class BonitaService {
   //     .then(result => console.log(result))
   //     .catch(error => console.log('error', error));
   // }
+
 
   private getUserInformationInLocalStorage(): BonitaUserInformation {
     const response = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation).content
@@ -198,6 +199,31 @@ class BonitaService {
     return response;
 
   }
+
+  public async getActiveCases(): Promise<Array<BonitaActiveCases>> {
+    var myHeaders = new Headers();
+    myHeaders.append("X-Bonita-API-Token",this.getBonitaToken());
+
+    var requestOptions: RequestInit = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+      credentials: 'include'
+
+    };
+
+    const response: Array<BonitaActiveCases> = await fetch("http://app.bonita.com:80/bonita/API/bpm/case?p=0&c=100", requestOptions).then(data => data.json());
+    console.log("RSTA ! ");
+    console.log(response);
+    
+    return response;
+
+  }
+
+  public filterCasesId(bonitaCases: Array<BonitaActiveCases>): string[] {
+    return bonitaCases.map( (bonitaCase: BonitaActiveCases) => bonitaCase.id );
+  }
+
 
 }
 

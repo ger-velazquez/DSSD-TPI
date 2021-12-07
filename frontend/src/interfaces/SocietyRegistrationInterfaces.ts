@@ -1,4 +1,4 @@
-import { CorporationForm } from "./FormInterfaces";
+import { CorporationForm, CountryAndState, Partner } from "./FormInterfaces";
 
 export interface SocietyRegistrationRoutes {
   societyRegistrationComponent: any;
@@ -31,6 +31,8 @@ export interface SocietyRegistrationInterface {
   observation: string | null;
   fileNumber: string // este es el numero de expediente
   dateCreated: Date;
+  qr?: string;
+  is_invalid?: boolean;
 }
 
 export interface SocietyRegistrationPendingFormsResponse {
@@ -41,6 +43,7 @@ export interface SocietyRegistrationPendingFormsResponse {
     legal_address: string;
     real_address: string;
     statute: string;
+    export: CountryAndState[];
     legal_representative: {
       id: number;
       name: string;
@@ -49,6 +52,7 @@ export interface SocietyRegistrationPendingFormsResponse {
       society_registration: number;
     };
   };
+  associate: Partner[];
   id: number;
   due_date: Date;
   observation: string | null;
@@ -63,6 +67,11 @@ export interface SocietyRegistrationPendingFormsResponse {
   is_invalid?: boolean;
 }
 
+export interface PendingFormRejected {
+  rejectReason: string;
+  numberOfHoursForResend: number;
+  registrationId: number;
+}
 // export interface ManageCollectionInterface {
 //   collectionId: number;
 //   collection: Array<any>;
