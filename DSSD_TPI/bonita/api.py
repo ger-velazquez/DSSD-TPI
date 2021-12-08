@@ -48,9 +48,9 @@ class LoginView(APIView):
             token = request.data.get('token', None)
             userid = request.data.get('userid', None)
 
-            bonita.sessionid = sessionid
-            bonita.userid = userid
-            bonita.token = token
+            bonita.set_sessionid(sessionid)
+            bonita.set_userid(userid)
+            bonita.set_token(token)
 
 
             return Response(

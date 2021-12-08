@@ -9,6 +9,10 @@ from django.conf import settings
 
 class BonitaService:
 
+    sessionid_class = None
+    token_class = None
+    userid_class = None
+
     def __init__(self):
         self.url = settings.BONITA_URL
         self.token = None
@@ -19,6 +23,20 @@ class BonitaService:
         self.display_name = ''
         self.state = ''
         self.userid = None
+
+    def set_sessionid(self, sessionid):
+        self.sessionid = sessionid
+        self.__class__.sessionid_class = sessionid
+    
+    def set_userid(self, userid):
+        self.userid = userid
+        self.__class__.userid_class = userid
+
+    
+    def set_token(self, token):
+        self.token = token
+        self.__class__.token_class = token
+
 
     def is_logged_in(self):
 
@@ -238,3 +256,28 @@ class BonitaService:
         )
 
         return res.status_code
+
+    @classmethod
+    def is_invalid(cls, caseid):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/humanTask?f=caseId=') + str(caseid) )
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        if not res.json():
+            return True
+        else:
+            return False

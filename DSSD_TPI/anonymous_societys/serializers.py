@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from bonita.bonita_service import BonitaService
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -41,10 +42,14 @@ class SocietyRegistrationSerializer(serializers.ModelSerializer):
     anonymous_society = AnonymousSocietySerializer()
     status = StatusSerializer()
     associate =  AssociateSerializer(source='society_registrations', many=True)
+    is_invalid = serializers.SerializerMethodField()
 
     class Meta:
         model = SocietyRegistration
-        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'qr', 'caseid', 'associate')
+        fields = ('id', 'due_date', 'observation', 'file_number', 'hash', 'date_created', 'anonymous_society', 'status', 'qr', 'caseid', 'is_invalid', 'associate')
+
+    def get_is_invalid(self, obj):
+        return BonitaService.is_invalid(obj.caseid)
 
 
 STATUS_CHOICES =( 
