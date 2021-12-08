@@ -9,7 +9,7 @@ export enum SocietyRegistrationPaths {
   pendingForms = "/pending-forms",
   registrationForm = "/registration",
   societyDescription = "/society/:fileNumber",
-  generateFileNumber = "/generate-file-number",
+  generateFolder = "/mesa-de-entrada/generate-folder",
   login = "/login",
 }
 

@@ -4,6 +4,8 @@ import { NotaryHomepage } from "../components/Escribanos/NotaryHomepage";
 import { GeolocalizacionHomepage } from "../components/Geolocalizacion/GeolocalizationHomepage";
 import { Login } from "../components/Login/Login";
 import { DeskStaff } from "../components/MesaDeEntrada/DeskStaff";
+import { GenerateFolder } from "../components/MesaDeEntrada/GenerateFolder";
+import { PendingRegistrationRequest } from "../components/MesaDeEntrada/PendingRegistrationRequest";
 import { SAFormV2 } from "../components/SAFormV2";
 import SocietyDescription  from "../components/SocietyViews/SocietyDescription";
 import UpdatedFormWrapper from "../components/UpdatedFormWrapper";
@@ -61,6 +63,16 @@ export const societyByFormId: SocietyRegistrationRoutes = {
   path: BonitaExtraPath.updatedForm,
 }
 
+export const managePendingForms: SocietyRegistrationRoutes = {
+  societyRegistrationComponent: PendingRegistrationRequest,
+  path: BonitaExtraPath.managePendingForms,
+}
+
+export const generateFolder: SocietyRegistrationRoutes = {
+  societyRegistrationComponent: GenerateFolder,
+  path: SocietyRegistrationPaths.generateFolder
+}
+
 export default [
   societyRegistrationForm,
   societyRegistrationPendingForms,
@@ -71,5 +83,7 @@ export default [
   notaries,
   applicants,
   deskStaff,
-  societyByFormId
+  societyByFormId,
+  managePendingForms,
+  generateFolder
 ]

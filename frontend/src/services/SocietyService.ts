@@ -5,13 +5,20 @@ import HttpClient from "./HttpClient";
 
 class SocietyService {
 
+  //
   async updatePendingForm(registrationID: number, action: ManageCollectionActions, reason: string, numberOfHoursForResend: number): Promise<GenericHttpResponse<any>> {
+    console.log("Los datos a enviar son:");
+    console.log(`RegistrationId: ${registrationID}`);
+    console.log(`Action: ${action}`);
+    console.log(`Reason: ${reason}`);
+    console.log(`Numero de Horas para el reenvio: ${numberOfHoursForResend}`); 
+    
     const response: GenericHttpResponse<any> = await HttpClient.post(
       "endpoint",
       {
-        registrationID,
-        action,
-        reason,
+        id: registrationID,
+        status: action,
+        observation: reason,
         time: numberOfHoursForResend
       }
     );
@@ -42,6 +49,19 @@ class SocietyService {
     );
 
     return FormatUtils.formatPendingFormsResponse(response);
+  }
+
+  async generateFolder(id: number) {
+    console.log(id);
+    const response = HttpClient.post(
+      "api/generate-folder",
+      {
+        id
+      }
+    );
+
+    return response;
+    
   }
 
 }
