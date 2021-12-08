@@ -2,11 +2,13 @@ import * as React from 'react';
 import { Container } from 'react-bootstrap';
 import { defaultValuesForSocietyRegistration, defaultValuesForForm } from '../../constants/FormConstants';
 import { SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
+import { deskStaffNavigator } from '../../interfaces/NavigatorInterface';
 import { PendingFormRejected } from '../../interfaces/SocietyRegistrationInterfaces';
 import SocietyService from '../../services/SocietyService';
 import { AppTitle } from '../Generic/AppTitle';
 import { ManageCollectionOfItems } from '../Generic/ManageCollectionOfItems';
 import { ManageCollectionOfItemsGenerateFolder } from '../Generic/ManageCollectionOfItemsGenerateFolder';
+import { Navigator } from '../Generic/Navigator';
 import { PendingContentModal } from '../PendingContentModal';
 
 export interface Props { }
@@ -64,6 +66,13 @@ export class GenerateFolder extends React.Component<Props, State> {
   render() {
     return (
       <Container>
+
+        <div className="d-flex justify-content-between mb-5">
+          <Navigator
+            collectionOfPath={deskStaffNavigator}
+          />
+        </div>
+        
         <AppTitle
           title="Generar Carpetas"
         />

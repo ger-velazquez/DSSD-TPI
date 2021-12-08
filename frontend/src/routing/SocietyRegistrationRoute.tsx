@@ -20,7 +20,7 @@ export class SocietyRegistrationRoute extends React.Component<Props,State> {
       <>
         <Route
           path={aRoute.path}
-          
+          exact
           render={ () => < aRoute.societyRegistrationComponent {...this.props} />}
           {... this.props}
         />

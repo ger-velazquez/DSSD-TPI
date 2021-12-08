@@ -6,6 +6,7 @@ import { defaultValuesForSocietyRegistration, defaultValuesForForm } from '../..
 import { AlertTypes, GenericHttpResponse, SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
 import { deskStaffNavigator } from '../../interfaces/NavigatorInterface';
 import { ManageCollectionActions, PendingFormRejected } from '../../interfaces/SocietyRegistrationInterfaces';
+import BonitaService from '../../services/BonitaService';
 import SocietyService from '../../services/SocietyService';
 import AlertUtils from '../../Utils/AlertUtils';
 import { GenericInputForm } from '../Generic/GenericInputForm';
@@ -50,10 +51,10 @@ export class PendingRegistrationRequest extends React.Component<Props, State> {
 
 
   async componentDidMount() {
-    // const activeCases = await BonitaService.getActiveCases();
-    // const collectionOfActiveCasesId = BonitaService.filterCasesId(activeCases);
-    // console.log("FILTRADOS");
-    // console.log(collectionOfActiveCasesId);
+    const activeCases = await BonitaService.getActiveCases();
+    const collectionOfActiveCasesId = BonitaService.filterCasesId(activeCases);
+    console.log("FILTRADOS");
+    console.log(collectionOfActiveCasesId);
     // enviar request a backend, obteniendo el array de las sociedades con ese caseId y renderizandolos.
 
     const response: SocietyRegistrationWithForm[] | any = await SocietyService.getPendingForms();
@@ -124,11 +125,11 @@ export class PendingRegistrationRequest extends React.Component<Props, State> {
   render() {
     return (
       <Container>
-        {/* <div className="d-flex justify-content-between mb-5">
+        <div className="d-flex justify-content-between mb-5">
           <Navigator
             collectionOfPath={deskStaffNavigator}
           />
-        </div> */}
+        </div>
         <div>
           <h1>
             Solicitudes de Registro Pendientes de Aprobacion

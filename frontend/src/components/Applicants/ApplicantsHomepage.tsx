@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { SAFormV2 } from '../SAFormV2';
 
 export interface Props {}
 
@@ -13,6 +14,7 @@ export class ApplicantsHomepage extends React.Component<Props,State> {
   render() {
     return (
       <>
+      <SAFormV2/>
       </>
     );
   }
