@@ -9,59 +9,34 @@ from django.conf import settings
 
 class BonitaService:
 
+    sessionid_class = None
+    token_class = None
+    userid_class = None
+
     def __init__(self):
         self.url = settings.BONITA_URL
-        self.token = ''
-        self.sessionid = ''
+        self.token = None
+        self.sessionid = None
         self.process_id = ''
         self.case_id = ''
         self.human_task_id = ''
         self.display_name = ''
         self.state = ''
-        self.userid = ''
+        self.userid = None
 
-    def get_sessionid(self):
+    def set_sessionid(self, sessionid):
+        self.sessionid = sessionid
+        self.__class__.sessionid_class = sessionid
+    
+    def set_userid(self, userid):
+        self.userid = userid
+        self.__class__.userid_class = userid
 
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'jsessionid'))
+    
+    def set_token(self, token):
+        self.token = token
+        self.__class__.token_class = token
 
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
-
-        self.sessionid = res.json()[0].get('value')
-        return True 
-
-    def get_token(self):
-
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'token'))
-
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
-
-        self.token = res.json()[0].get('value')  
-        return True      
-
-
-    def get_userid(self):
-
-        url = ('{}/{}/{}/{}'.format(self.url,'API/bpm/caseVariable/',str(self.case_id),'usuarioid'))
-
-        res = requests.get(
-            url,
-            headers={
-                "Content-type": "application/json",
-            }
-        )
-
-        self.userid = res.json()[0].get('value') 
-        return True 
 
     def login(self):
         #con este metodo recibir los datos del frontend y actualizar las variables de self.
@@ -70,6 +45,9 @@ class BonitaService:
             return True
         
         return False
+    def is_logged_in(self):
+
+        return (self.sessionid is not None and self.token is not None)
 
     def get_process_id(self):
 
@@ -229,7 +207,7 @@ class BonitaService:
         if(var == 1):
             url = url + '/idSolicitudSociedad'
             data ={  
-                "type": "java.lang.Integer",
+                "type": "java.lang.String",
                 "value": str(value)
             }
 
@@ -259,7 +237,14 @@ class BonitaService:
             data ={  
                 "type": "java.lang.Long",
                 "value": str(value)
-            }            
+            }          
+
+        elif(var == 6):
+            url = url + '/horasReenvioMesaEntrada'
+            data ={  
+                "type": "java.lang.String",
+                "value": str(value)
+            }        
 
         cookies = {
             'JSESSIONID': self.sessionid,
@@ -278,3 +263,28 @@ class BonitaService:
         )
 
         return res.status_code
+
+    @classmethod
+    def is_invalid(cls, caseid):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/humanTask?f=caseId=') + str(caseid) )
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        if not res.json():
+            return True
+        else:
+            return False
