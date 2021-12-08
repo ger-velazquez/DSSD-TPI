@@ -75,7 +75,120 @@ class LoginView(APIView):
 
 class BonitaProcessView(APIView):
 
+    def delete_associates(self, society_re):
+
+        society_re.anonymous_society.legal_representative = None
+        society_re.anonymous_society.save()
+
+        associates = Associate.objects.filter(society_registration=society_re)
+
+        if associates.exists():
+            for a in associates:
+                a.society_registration = None
+                a.delete()
+    
+    def delete_exports(self, society_re):
+
+        exports = Export.objects.filter(anonymous_society=society_re.anonymous_society)
+
+        if exports.exists():
+            for e in exports:
+                e.anonymous_society = None
+                e.delete()
+
+
     def post(self, request):
+
+
+        id = self.request.query_params.get('id', None)
+
+
+        if id:
+            try:
+                logged = bonita.is_logged_in()
+
+                if logged:
+
+                    society_re = SocietyRegistration.objects.get(id=id)
+
+                    anon = society_re.anonymous_society
+
+                    anon.name = self.request.data['form']['name']
+                    anon.real_address = self.request.data['form']['realDomicile']
+                    anon.legal_address = self.request.data['form']['legalDomicile']
+                    anon.email = self.request.data['form']['email']
+                    anon.date_created = self.request.data['form']['creationDate']
+
+                    statute_base64 = self.request.data['form']['statuteOfConformation']
+                    format, pdfstr = statute_base64.split(';base64,')
+                    ext = format.split('/')[-1]
+
+                    data = ContentFile(base64.b64decode(pdfstr))  
+                    file_name = "'statute." + ext
+                    anon.statute.save(file_name, data, save=True)
+
+                    self.delete_associates(society_re)
+                    
+                    for a in self.request.data['form']['partners']:
+                        associate = Associate.create(
+                            name=a['firstName'],
+                            last_name=a['lastName'],
+                            percentage=a['percentageOfContributions'],
+                            society_registration=society_re
+                        )
+                        if a['isLegalRepresentative'] == True:
+                            anon.legal_representative = associate
+                            anon.save()
+
+
+                    self.delete_exports(society_re)
+
+                    if not self.request.data['form']['exportLocations']:
+                        Export.create(
+                                country='Argentina',
+                                state=None,
+                                anonymous_society=anon
+                            )
+                    else:
+                        for e in self.request.data['form']['exportLocations']:
+                            export = Export.create(
+                                country=e['country'],
+                                state=e['state'],
+                                anonymous_society=anon
+                            )
+
+                    anon.save()
+                    society_re.save()
+
+                   
+                    bonita.set_var(4, society_re.anonymous_society.email)
+                    
+                    bonita.get_human_task()
+                    bonita.assign_task()
+                    bonita.execute_task()
+
+                    return Response(
+                        {
+                            "status": True,
+                            "payload": {},
+                            "errors": [],
+                        },
+                        status=status.HTTP_200_OK
+                    )
+
+                else:
+                    raise
+
+            except Exception as e:
+                return Response(
+                    {
+                        "status": False,
+                        "payload": {},
+                        "errors": str(e),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
 
         try:
             logged = bonita.is_logged_in()
@@ -132,10 +245,6 @@ class BonitaProcessView(APIView):
 
                 society_re.caseid = bonita.case_id
                 society_re.save()
-
-                # bonita_set_variables = bonita.set_variables([
-                #     {"name":"idSolicitudSociedad","value": society_re.id}
-                # ])
 
                 bonita_set_variables = bonita.set_var(1,society_re.id)
                 bonita.set_var(4, society_re.anonymous_society.email)
@@ -226,6 +335,8 @@ class ValidateRegistrationFormView(APIView):
                     time_M = 3600000 * time_H
                     bonita.set_var(5, time_M)
                     bonita.set_var(6, str(time_H))
+
+                    bonita.set_var(2,"False")
 
                     society.status = st
                     society.save()
@@ -321,6 +432,8 @@ class ValidateTramiteView(APIView):
                 society = SocietyRegistration.objects.get(id=id)
                 if status_data == 'reject':
                     bonita.set_var(3,"False")
+                else:
+                    bonita.set_var(3,"True")
 
                 bonita.get_human_task()
                 bonita.assign_task()
@@ -360,7 +473,9 @@ class GenerateFileNumberView(APIView):
 
         try:
             society = SocietyRegistration.objects.get(id=id)
-            society.generate_file_number()
+
+            if society.file_number is None:
+                society.generate_file_number()
 
             return Response(
                     {
