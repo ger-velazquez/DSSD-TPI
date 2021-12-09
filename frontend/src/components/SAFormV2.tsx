@@ -219,8 +219,7 @@ export class SAFormV2 extends React.Component<Props, State> {
 
   render() {
     const partnersOptions: string[] = this.getPartnersOptions()
-    console.log("ESTADO PA");
-    console.log(this.state.corporationForm);
+
 
     return (
       <>

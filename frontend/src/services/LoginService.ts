@@ -15,6 +15,22 @@ class LoginService {
 
     return login
   }
+
+  public async backendLogin(userId: string, bonitaToken: string) {
+
+    const response = await HttpClient.post(
+      "api/login",
+      {
+        token: bonitaToken,
+        userid: userId,
+        sessionid: "1446B70A24BD4C5FF0F6E9C3EAF671D7"
+      }
+    );
+
+    return response;
+
+  }
+
 }
 
 export default new LoginService();

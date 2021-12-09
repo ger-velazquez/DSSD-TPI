@@ -38,13 +38,14 @@ class BonitaService:
         self.__class__.token_class = token
 
 
-    def login(self):
-        #con este metodo recibir los datos del frontend y actualizar las variables de self.
-        if( self.get_sessionid and self.get_token):
-            self.get_userid
-            return True
+    # def login(self):
+    #     #con este metodo recibir los datos del frontend y actualizar las variables de self.
+    #     if( self.get_sessionid and self.get_token):
+    #         self.get_userid
+    #         return True
         
-        return False
+    #     return False
+    
     def is_logged_in(self):
 
         return (self.sessionid is not None and self.token is not None)
@@ -60,6 +61,12 @@ class BonitaService:
             'X-Bonita-API-Token': self.token
         }
 
+        print(" == TEST ==")
+        print(self.sessionid)
+        print(self.token)
+        print(self.userid)
+        print("=================")
+
         res = requests.get(
             url,
             cookies=cookies,
@@ -71,6 +78,8 @@ class BonitaService:
             params=payload
         )
 
+        print("REQUEST")
+        print(res)
         self.process_id = res.json()[0].get('id')
 
     def instantiation(self):
@@ -96,6 +105,8 @@ class BonitaService:
 
     def set_variables(self, vars):
 
+        print("VARIBLES: ")
+        print(vars)
         url = '{}/{}'.format(self.url, 'API/bpm/case')
 
         data ={

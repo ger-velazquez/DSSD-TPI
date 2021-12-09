@@ -4,6 +4,7 @@ import LocalStorageService, { CacheContent } from "./LocalStorageService";
 import Cookies from "js-cookie";
 import { bonitaUrl, userGroupAndPathMapped } from "../constants/LoginConstants";
 import { BonitaActiveCases, BonitaOrganizationGroups, BonitaProcessInterface, BonitaSession, BonitaUserInformation } from "../interfaces/BonitaInterfaces";
+import LoginService from "./LoginService";
 
 class BonitaService {
 
@@ -46,7 +47,7 @@ class BonitaService {
   // }
 
 
-  private getUserInformationInLocalStorage(): BonitaUserInformation {
+  public getUserInformationInLocalStorage(): BonitaUserInformation {
     const response = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation).content
     console.log(response);
 
@@ -76,6 +77,13 @@ class BonitaService {
     LocalStorageService.setItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation, bonitaLocalStorage);
   }
 
+  public async sendLoginToBackend(currentUserId: string, bonitaToken: string) {
+
+  const response = await LoginService.backendLogin(currentUserId, bonitaToken);
+
+  return response;
+  }
+  
   private async setUpLogin() {
     const bonitaToken: string = this.getBonitaToken();
     const currentUserId: string = await (await this.getCurrentSessionId()).user_id;
@@ -87,6 +95,9 @@ class BonitaService {
     const urlRedirect: string = `http://app.bonita.com:3001${this.getUserInformationInLocalStorage().currentUserHomePath}`
     window.location.replace(urlRedirect);
   }
+
+
+
 
   public async getUserInformation(userId: string): Promise<any> {
     const url: string = `http://${bonitaUrl}/API/identity/membership?p=0&c=10&f=user_id%3d${userId}&d=role_id&d=group_id`

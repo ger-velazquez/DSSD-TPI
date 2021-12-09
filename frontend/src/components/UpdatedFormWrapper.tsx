@@ -59,7 +59,6 @@ class UpdatedFormWrapper extends React.Component<PropsType, State> {
         <UpdatedForm
           society={this.state.society}
         />
-      {/* ACA DEBERIA IR EL FORM CON LOS DATOS PRECARGADOS */}
       </>
     );
   }
