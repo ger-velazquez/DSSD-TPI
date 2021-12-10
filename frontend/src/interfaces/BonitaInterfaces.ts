@@ -63,6 +63,7 @@ export interface BonitaUserInformation {
   currentUserId: string;
   currentUserGroup: string | BonitaOrganizationGroups;
   currentUserHomePath: string | BonitaGroupsPath;
+  currentJsessionId: string;
 }
 
 export enum BonitaGroupsPath {

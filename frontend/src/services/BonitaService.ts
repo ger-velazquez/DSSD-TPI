@@ -58,12 +58,13 @@ class BonitaService {
     return LocalStorageService.removeItem(LocalStorageKeys.userInformation);
   }
 
-  private saveUserInformationInLocalStorage(bonitaToken: string, currentUserId: string, currentUserGroup: string, currentUserHomePath: string) {
+  private saveUserInformationInLocalStorage(bonitaToken: string, currentUserId: string, currentUserGroup: string, currentUserHomePath: string, currentJsessionId:string) {
     const bonitaUserInformation: BonitaUserInformation = {
       bonitaToken,
       currentUserId,
       currentUserGroup,
-      currentUserHomePath
+      currentUserHomePath,
+      currentJsessionId
     }
 
     const bonitaLocalStorage: CacheContent<BonitaUserInformation> = {
@@ -77,20 +78,21 @@ class BonitaService {
     LocalStorageService.setItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation, bonitaLocalStorage);
   }
 
-  public async sendLoginToBackend(currentUserId: string, bonitaToken: string) {
+  public async sendLoginToBackend(currentUserId: string, bonitaToken: string, currentJsessionId: string) {
 
-  const response = await LoginService.backendLogin(currentUserId, bonitaToken);
+  const response = await LoginService.backendLogin(currentUserId, bonitaToken, currentJsessionId);
 
   return response;
   }
   
   private async setUpLogin() {
     const bonitaToken: string = this.getBonitaToken();
+    const jsessionId = Cookies.get(LocalStorageKeys.jSessionId);
     const currentUserId: string = await (await this.getCurrentSessionId()).user_id;
     const userGroup: string = (await (this.getUserInformation(currentUserId)))[0].group_id.displayName;
 
     const currentUserHomePath = userGroupAndPathMapped[userGroup as BonitaOrganizationGroups]
-    this.saveUserInformationInLocalStorage(bonitaToken, currentUserId, userGroup, currentUserHomePath);
+    this.saveUserInformationInLocalStorage(bonitaToken, currentUserId, userGroup, currentUserHomePath, jsessionId!);
 
     const urlRedirect: string = `http://app.bonita.com:3001${this.getUserInformationInLocalStorage().currentUserHomePath}`
     window.location.replace(urlRedirect);

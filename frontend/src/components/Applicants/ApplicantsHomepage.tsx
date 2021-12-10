@@ -17,7 +17,8 @@ export class ApplicantsHomepage extends React.Component<Props, State> {
     const userInformation = BonitaService.getUserInformationInLocalStorage();
     const bonitaToken = userInformation.bonitaToken;
     const userId = userInformation.currentUserId;
-    const response = await BonitaService.sendLoginToBackend(userId, bonitaToken);
+    const jsessionId = userInformation.currentJsessionId;
+    const response = await BonitaService.sendLoginToBackend(userId, bonitaToken, jsessionId);
   }
 
 
