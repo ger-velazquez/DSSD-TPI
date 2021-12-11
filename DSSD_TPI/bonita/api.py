@@ -250,7 +250,7 @@ class BonitaProcessView(APIView):
 
                 bonita_set_variables = bonita.set_var(1,society_re.id)
                 bonita.set_var(4, society_re.anonymous_society.email)
-
+                
                 #bonita_set_variables = 200
 
                 if bonita_set_variables == 200:
@@ -291,6 +291,7 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
         id = self.request.query_params.get('id', None)
         file_number = self.request.query_params.get('file_number', None)
         caseid = self.request.query_params.get('caseid', None)
+        task = self.request.query_params.get('task', None)
 
         # http://localhost:8080/bonita/API/bpm/humanTask?f=caseId=13
 
@@ -302,7 +303,13 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
             return SocietyRegistration.objects.filter(file_number=file_number)
         if caseid:
             caseid = caseid.split(",")
-            return SocietyRegistration.objects.filter(caseid__in=caseid, status=1)
+            active_cases = []
+            for case in caseid:
+                json = BonitaService.active_cases(case)
+                if json:
+                    if json[0]['displayName'] == task:
+                        active_cases.append(case)
+            return SocietyRegistration.objects.filter(caseid__in=active_cases)
         else:
             return SocietyRegistration.objects.filter(status=1)
 

@@ -299,3 +299,25 @@ class BonitaService:
             return True
         else:
             return False
+
+    @classmethod
+    def active_cases(cls, caseid):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/humanTask?f=caseId=') + str(caseid) )
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        return res.json()
