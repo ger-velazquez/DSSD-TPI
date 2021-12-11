@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import { Row, Col, Container } from 'react-bootstrap';
 import { defaultValuesForSocietyRegistration, defaultValuesForForm } from '../../constants/FormConstants';
+import { ProcessStep } from '../../interfaces/BonitaInterfaces';
 import { AlertTypes, GenericHttpResponse, SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
 import { deskStaffNavigator } from '../../interfaces/NavigatorInterface';
 import { ManageCollectionActions, PendingFormRejected } from '../../interfaces/SocietyRegistrationInterfaces';
@@ -52,12 +53,13 @@ export class PendingRegistrationRequest extends React.Component<Props, State> {
 
   async componentDidMount() {
     const activeCases = await BonitaService.getActiveCases();
-    const collectionOfActiveCasesId = BonitaService.filterCasesId(activeCases);
+    const collectionOfActiveCasesId: string = BonitaService.filterCasesId(activeCases).toString();
+
     console.log("FILTRADOS");
     console.log(collectionOfActiveCasesId);
     // enviar request a backend, obteniendo el array de las sociedades con ese caseId y renderizandolos.
 
-    const response: SocietyRegistrationWithForm[] | any = await SocietyService.getPendingForms();
+    const response: SocietyRegistrationWithForm[] | any = await SocietyService.getPendingForms(collectionOfActiveCasesId, ProcessStep.validateForm);
     if (response) {
       const updatedPendingForms = response;
       // const updatedPendingForms = mockedPendingForms;

@@ -81,3 +81,8 @@ export enum BonitaExtraPath {
 }
 
 export type BonitaUsersPath = { [key in BonitaOrganizationGroups]: BonitaGroupsPath }
+
+export enum ProcessStep {
+  validateForm = "Validacion de formularios de inscripcion",
+  validateProcess = "Determinar validez del tramite"
+}

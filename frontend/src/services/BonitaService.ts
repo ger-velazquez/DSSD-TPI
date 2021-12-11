@@ -13,21 +13,11 @@ class BonitaService {
     return bonitaToken ? bonitaToken : ""
   }
 
+  private getDataFromCookies(key: string): string {
+    const value = Cookies.get(key);
 
-  // private saveTokenInLocalStorage() {
-  //   const cookiesAsArray: Array<string> = document.cookie.split(';');
-  //   const bonitaToken: string = cookiesAsArray[cookiesAsArray.length - 1].split("=")[1];
-
-  //   const tokenSaved: CacheContent<string> = {
-  //     timestamp: Date.now(),
-  //     content: bonitaToken,
-  //   }
-  //   if (LocalStorageService.getItem<CacheContent<string>>(LocalStorageKeys.xBonitaToken)) {
-  //     LocalStorageService.removeItem(LocalStorageKeys.xBonitaToken);
-  //   }
-  //   LocalStorageService.setItem<CacheContent<string>>(LocalStorageKeys.xBonitaToken, tokenSaved);
-  // }
-
+    return value ? value : "";
+  }
 
   // public async instantiateProcess() {
   //   var myHeaders = new Headers();
@@ -49,7 +39,6 @@ class BonitaService {
 
   public getUserInformationInLocalStorage(): BonitaUserInformation {
     const response = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation).content
-    console.log(response);
 
     return response;
   }
@@ -105,6 +94,7 @@ class BonitaService {
     const url: string = `http://${bonitaUrl}/API/identity/membership?p=0&c=10&f=user_id%3d${userId}&d=role_id&d=group_id`
     let myHeaders: HeadersInit = new Headers();
     myHeaders.append("X-Bonita-API-Token", this.getBonitaToken().toString());
+    // myHeaders.append(LocalStorageKeys.jSessionId, this.getDataFromCookies(LocalStorageKeys.jSessionId));
 
     const requestOptions: RequestInit = {
       method: 'GET',

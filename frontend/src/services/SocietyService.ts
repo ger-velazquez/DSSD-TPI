@@ -1,3 +1,4 @@
+import { ProcessStep } from "../interfaces/BonitaInterfaces";
 import { GenericHttpResponse, SocietyRegistrationWithForm } from "../interfaces/FormInterfaces";
 import { ManageCollectionActions, SocietyRegistrationPendingFormsResponse } from "../interfaces/SocietyRegistrationInterfaces";
 import FormatUtils from "../Utils/FormatUtils";
@@ -35,9 +36,9 @@ class SocietyService {
     return updatedResponse;
   }
   
-  async getPendingForms() {
+  async getPendingForms(collectionOfCasesId: string, step: ProcessStep) {
     let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
-      "api/societies/"
+      `api/societies/?step=${step}&caseid=${collectionOfCasesId}`
     );
     let test = FormatUtils.formatPendingFormsResponse(response);
     return test;
