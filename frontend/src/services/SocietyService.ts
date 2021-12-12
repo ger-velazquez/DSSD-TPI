@@ -15,7 +15,7 @@ class SocietyService {
     console.log(`Numero de Horas para el reenvio: ${numberOfHoursForResend}`); 
     
     const response: GenericHttpResponse<any> = await HttpClient.post(
-      "endpoint",
+      "api/validate-reg-form",
       {
         id: registrationID,
         status: action,
@@ -26,6 +26,27 @@ class SocietyService {
 
     return response;
   }
+
+  async updatePendingProcess(registrationID: number, action: ManageCollectionActions, observation: string): Promise<GenericHttpResponse<any>> {
+    console.log("Los datos a enviar son:");
+    console.log(`RegistrationId: ${registrationID}`);
+    console.log(`Action: ${action}`);
+    console.log(`Observaciones: ${observation}`);
+    
+    
+    const response: GenericHttpResponse<any> = await HttpClient.post(
+      "api/validate-tramite",
+      {
+        id: registrationID,
+        status: action,
+        observation
+      }
+    );
+
+    return response;
+  }
+
+
 
   async getSocietyWithForm(societyId: string) {
     let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
@@ -38,10 +59,19 @@ class SocietyService {
   
   async getPendingForms(collectionOfCasesId: string, step: ProcessStep) {
     let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
-      `api/societies/?step=${step}&caseid=${collectionOfCasesId}`
+      `api/societies/?task=${step}&caseid=${collectionOfCasesId}`
     );
     let test = FormatUtils.formatPendingFormsResponse(response);
     return test;
+  }
+
+  async getPendingProcess(collectionOfCasesId: string, step: ProcessStep) {
+    let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
+      `api/validate-tramite/?task=${step}&caseid=${collectionOfCasesId}`
+    );
+    let test = FormatUtils.formatPendingFormsResponse(response);
+    return test;
+  
   }
 
   async getPendingFormsWithCasesId(activeCasesId: string[]) {

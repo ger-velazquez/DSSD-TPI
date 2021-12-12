@@ -328,9 +328,13 @@ class ValidateRegistrationFormView(APIView):
 
         logged = bonita.is_logged_in()
 
+        # import pdb;
+        # pdb.set_trace()
+
         if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
+
                 if status_data == 'accept':
                     st = Status.objects.get(id=2)
                     society.status = st
@@ -341,7 +345,7 @@ class ValidateRegistrationFormView(APIView):
                     st = Status.objects.get(id=3)
                     
                     time_H = int(request.data.get('time', None))
-                    time_M = 3600000 * time_H
+                    time_M = 60000 * time_H
                     bonita.set_var(5, time_M)
                     bonita.set_var(6, str(time_H))
 
@@ -478,14 +482,20 @@ class ValidateTramiteView(APIView):
 
         status_data = request.data.get('status', None)
         id = request.data.get('id', None)
+        observation = request.data.get('observation', None)
+
 
         logged = bonita.is_logged_in()
+
 
         if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
                 if status_data == 'reject':
                     bonita.set_var(3,"False")
+                    if observation:
+                        society.observation = observation
+                        society.save()
                 else:
                     bonita.set_var(3,"True")
 

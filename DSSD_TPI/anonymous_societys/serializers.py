@@ -76,7 +76,8 @@ class ValidateRegistrationFormSerializer(serializers.Serializer):
 class ValidateTramiteSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices = STATUS_CHOICES)
     id = serializers.IntegerField()
-
+    observation = serializers.CharField(required=False, allow_blank=True)
+    
     def validate_id(self, value):
         try:
             SocietyRegistration.objects.get(id=value)

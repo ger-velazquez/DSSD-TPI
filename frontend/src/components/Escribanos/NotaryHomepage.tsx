@@ -50,6 +50,13 @@ export class NotaryHomepage extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
+
+    const userInformation = BonitaService.getUserInformationInLocalStorage();
+    const bonitaToken = userInformation.bonitaToken;
+    const userId = userInformation.currentUserId;
+    const jsessionId = userInformation.currentJsessionId;
+    const responseTest = await BonitaService.sendLoginToBackend(userId, bonitaToken, jsessionId);
+
     const activeCases = await BonitaService.getActiveCases();
     const collectionOfActiveCasesId = BonitaService.filterCasesId(activeCases).toString();
 
@@ -80,7 +87,7 @@ export class NotaryHomepage extends React.Component<Props, State> {
   }
 
   async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string, numberOfHoursForResend: number) {
-    const response: GenericHttpResponse<any> = await SocietyService.updatePendingForm(registrationID, action, reason, numberOfHoursForResend);
+    const response: GenericHttpResponse<any> = await SocietyService.updatePendingProcess(registrationID, action, reason);
     if (response.status) {
       AlertUtils.notifyWithCallback(
         AlertTypes.success,

@@ -3,6 +3,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 
 import { Navigator } from '../Generic/Navigator';
 import { deskStaffNavigator } from '../../interfaces/NavigatorInterface';
+import BonitaService from '../../services/BonitaService';
 
 export interface Props { }
 
@@ -15,6 +16,13 @@ export class DeskStaff extends React.Component<Props, State> {
 
   }
 
+  async componentDidMount() {
+    const userInformation = BonitaService.getUserInformationInLocalStorage();
+    const bonitaToken = userInformation.bonitaToken;
+    const userId = userInformation.currentUserId;
+    const jsessionId = userInformation.currentJsessionId;
+    const response = await BonitaService.sendLoginToBackend(userId, bonitaToken, jsessionId);
+  }
 
   render() {
     return (
