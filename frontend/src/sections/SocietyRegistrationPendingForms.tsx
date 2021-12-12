@@ -30,16 +30,16 @@ export class SocietyRegistrationPendingForms extends React.Component<Props, Stat
     }
   }
 
-  async componentDidMount() {
-    const response: SocietyRegistrationWithForm[] | any= await SocietyService.getPendingForms();
-    if (response) {
-      const updatedPendingForms = response;
-      // const updatedPendingForms = mockedPendingForms;
-      this.setState({
-        pendingForms: updatedPendingForms
-      })
-    }
-  }
+  // async componentDidMount() {
+  //   const response: SocietyRegistrationWithForm[] | any= await SocietyService.getPendingForms();
+  //   if (response) {
+  //     const updatedPendingForms = response;
+  //     // const updatedPendingForms = mockedPendingForms;
+  //     this.setState({
+  //       pendingForms: updatedPendingForms
+  //     })
+  //   }
+  // }
 
   async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string) {
     const response: GenericHttpResponse<any> = await SocietyService.updatePendingForm(registrationID, action, reason, 0);
