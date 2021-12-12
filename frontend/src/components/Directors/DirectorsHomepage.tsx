@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Container } from 'react-bootstrap';
+import { AppTitle } from '../Generic/AppTitle';
 
 export interface Props {}
 
@@ -13,6 +15,14 @@ export class DirectorsHomepage extends React.Component<Props,State> {
   render() {
     return (
       <>
+        <Container>
+          <AppTitle
+            title="Panel de Monitoreo"
+          />
+          <div>
+            
+          </div>
+        </Container>
       </>
     );
   }

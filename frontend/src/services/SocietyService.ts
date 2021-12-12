@@ -62,6 +62,9 @@ class SocietyService {
       `api/societies/?task=${step}&caseid=${collectionOfCasesId}`
     );
     let test = FormatUtils.formatPendingFormsResponse(response);
+
+    console.log("DATA");
+    console.log(response);    
     return test;
   }
 

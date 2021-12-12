@@ -17,6 +17,9 @@ import { GenericFormSelectValues } from './Generic/GenericFormSelectValues';
 import AlertUtils from '../Utils/AlertUtils';
 import FormService from '../services/FormService';
 import ValidationService from '../services/ValidationService';
+import FormatUtils from '../Utils/FormatUtils';
+import SocietyService from '../services/SocietyService';
+import { ProcessStep } from '../interfaces/BonitaInterfaces';
 
 
 export interface Props {
@@ -29,6 +32,7 @@ export interface State {
   defaultForm: CorporationForm;
   modalConfiguration: ModalConfiguration;
   errorMessage: string;
+  showForCaseId: boolean
 }
 export class SAFormV2 extends React.Component<Props, State> {
 
@@ -38,6 +42,7 @@ export class SAFormV2 extends React.Component<Props, State> {
     this.state = {
       validated: false,
       errorMessage: "",
+      showForCaseId: true,
       corporationForm: this.props.society?.form ? this.props.society.form : defaultValuesForForm,
       defaultForm: defaultValuesForForm,
       modalConfiguration: {
@@ -57,8 +62,23 @@ export class SAFormV2 extends React.Component<Props, State> {
     this.deleteElementInCollection = this.deleteElementInCollection.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
 
+    console.log(this.props.society);
+    
+    if (this.props.society) {
+      if (this.props.society.societyRegistration.caseId) {
+        const collectionInValidateForDeskStaff = await SocietyService.getPendingForms(this.props.society.societyRegistration.caseId, ProcessStep.validateForm);
+        const collectionInValidateForNotaries = await SocietyService.getPendingForms(this.props.society.societyRegistration.caseId, ProcessStep.validateProcess);
+        
+        if (collectionInValidateForDeskStaff.length > 0 || collectionInValidateForNotaries.length > 0 ) {
+          this.setState({
+            showForCaseId: false
+          })
+        }
+
+      }
+    }
     const defaultForm: CorporationForm = this.props.society ? cloneDeep(this.props.society.form) : defaultValuesForForm;
 
     this.setState({
@@ -71,7 +91,7 @@ export class SAFormV2 extends React.Component<Props, State> {
     let updatedPartners = cloneDeep(partners);
     updatedPartners.forEach((partner: Partner) => {
       let partnerName: string = `${partner.firstName} ${partner.lastName}`
-      if (partnerName === legalRepresentative) {
+      if (FormatUtils.removeSpaceInString(legalRepresentative) === FormatUtils.removeSpaceInString(legalRepresentative)) {
         partner.isLegalRepresentative = true;
       }
     })
@@ -80,6 +100,8 @@ export class SAFormV2 extends React.Component<Props, State> {
   }
 
   async addMediaContent(form: CorporationForm) {
+    console.log("VOY A ENVIAR EL REQUEST");
+
     const formData: CorporationForm = cloneDeep(this.state.corporationForm);
     formData.partners = this.setLegalRepresentative(formData.partners, form.legalRepresentative);
 
@@ -89,7 +111,8 @@ export class SAFormV2 extends React.Component<Props, State> {
       this.setState({ errorMessage: validation[0] })
       return
     }
-    const formUploaded: GenericHttpResponse<any> = await FormService.uploadAnonymousSociety(formData);
+    const id = this.props.society?.societyRegistration.id ? this.props.society?.societyRegistration.id.toString() : ""
+    const formUploaded: GenericHttpResponse<any> = await FormService.uploadAnonymousSociety(formData, id?.toString());
     if (formUploaded.status) {
       AlertUtils.notifyWithCallback(AlertTypes.success, "La sociedad fue cargada con exito", () => window.location.reload())
     }
@@ -166,13 +189,13 @@ export class SAFormV2 extends React.Component<Props, State> {
 
   updateStatute() {
     const updatedForm: CorporationForm = cloneDeep(this.state.corporationForm);
-    updatedForm.statuteOfConformation = null;
+    // updatedForm.statuteOfConformation = null;
     this.setState({
       defaultForm: updatedForm,
       corporationForm: updatedForm,
     })
   }
-  
+
   handleModal(collectionKey: DynamicCollections) {
     let modalConfiguration = { ... this.state.modalConfiguration };
     let specificForm: JSX.Element = (<> </>);
@@ -220,7 +243,15 @@ export class SAFormV2 extends React.Component<Props, State> {
   render() {
     const partnersOptions: string[] = this.getPartnersOptions()
 
-
+    console.log(this.state);
+    
+    if (!this.state.showForCaseId) {
+      return (
+        <div>
+          Nada que ver aqui
+        </div>
+      )
+    }
     return (
       <>
         <Container className="mt-4">
@@ -292,8 +323,8 @@ export class SAFormV2 extends React.Component<Props, State> {
                       <div className="text-center" onClick={() => window.open(this.state.corporationForm.statuteOfConformation! as string, '__blank')?.focus()} style={{ fontWeight: 'bolder' }}>
                         Ver estatuto
                       </div>
-                      <div className="text-center" onClick={() => this.updateStatute() }>
-                        Cambiar 
+                      <div className="text-center" onClick={() => this.updateStatute()}>
+                        Cambiar
                       </div>
                     </>
                   }

@@ -37,6 +37,7 @@ from anonymous_societys.serializers import (
 
 bonita = BonitaService()
 
+
 class LoginView(APIView):
     serializer_class = LoginSerializer
 
@@ -53,7 +54,6 @@ class LoginView(APIView):
             bonita.set_sessionid(sessionid)
             bonita.set_userid(userid)
             bonita.set_token(token)
-
 
             return Response(
                 {
@@ -88,109 +88,108 @@ class BonitaProcessView(APIView):
             for a in associates:
                 a.society_registration = None
                 a.delete()
-    
+
     def delete_exports(self, society_re):
 
-        exports = Export.objects.filter(anonymous_society=society_re.anonymous_society)
+        exports = Export.objects.filter(
+            anonymous_society=society_re.anonymous_society)
 
         if exports.exists():
             for e in exports:
                 e.anonymous_society = None
                 e.delete()
 
-
     def post(self, request):
-
 
         id = self.request.query_params.get('id', None)
 
-
         if id:
-            try:
-                logged = bonita.is_logged_in()
+            # try:
+            logged = bonita.is_logged_in()
 
-                if logged:
+            if logged:
 
-                    society_re = SocietyRegistration.objects.get(id=id)
+                society_re = SocietyRegistration.objects.get(id=id)
 
-                    anon = society_re.anonymous_society
+                anon = society_re.anonymous_society
 
-                    anon.name = self.request.data['form']['name']
-                    anon.real_address = self.request.data['form']['realDomicile']
-                    anon.legal_address = self.request.data['form']['legalDomicile']
-                    anon.email = self.request.data['form']['email']
-                    anon.date_created = self.request.data['form']['creationDate']
+                anon.name = self.request.data['form']['name']
+                anon.real_address = self.request.data['form']['realDomicile']
+                anon.legal_address = self.request.data['form']['legalDomicile']
+                anon.email = self.request.data['form']['email']
+                anon.date_created = self.request.data['form']['creationDate']
 
-                    statute_base64 = self.request.data['form']['statuteOfConformation']
+                statute_base64 = self.request.data['form']['statuteOfConformation']
+                if ("app.bonita.com" not in statute_base64):
                     format, pdfstr = statute_base64.split(';base64,')
+
                     ext = format.split('/')[-1]
 
-                    data = ContentFile(base64.b64decode(pdfstr))  
+                    data = ContentFile(base64.b64decode(pdfstr))
                     file_name = "'statute." + ext
                     anon.statute.save(file_name, data, save=True)
 
-                    self.delete_associates(society_re)
-                    
-                    for a in self.request.data['form']['partners']:
-                        associate = Associate.create(
-                            name=a['firstName'],
-                            last_name=a['lastName'],
-                            percentage=a['percentageOfContributions'],
-                            society_registration=society_re
-                        )
-                        if a['isLegalRepresentative'] == True:
-                            anon.legal_representative = associate
-                            anon.save()
+                self.delete_associates(society_re)
 
-
-                    self.delete_exports(society_re)
-
-                    if not self.request.data['form']['exportLocations']:
-                        Export.create(
-                                country='Argentina',
-                                state=None,
-                                anonymous_society=anon
-                            )
-                    else:
-                        for e in self.request.data['form']['exportLocations']:
-                            export = Export.create(
-                                country=e['country'],
-                                state=e['state'],
-                                anonymous_society=anon
-                            )
-
-                    anon.save()
-                    society_re.save()
-
-                   
-                    bonita.set_var(4, society_re.anonymous_society.email)
-                    
-                    bonita.get_human_task()
-                    bonita.assign_task()
-                    bonita.execute_task()
-
-                    return Response(
-                        {
-                            "status": True,
-                            "payload": {},
-                            "errors": [],
-                        },
-                        status=status.HTTP_200_OK
+                for a in self.request.data['form']['partners']:
+                    associate = Associate.create(
+                        name=a['firstName'],
+                        last_name=a['lastName'],
+                        percentage=a['percentageOfContributions'],
+                        society_registration=society_re
                     )
+                    if a['isLegalRepresentative'] == True:
+                        anon.legal_representative = associate
+                        anon.save()
 
+                self.delete_exports(society_re)
+
+                if not self.request.data['form']['exportLocations']:
+                    Export.create(
+                        country='Argentina',
+                        state=None,
+                        anonymous_society=anon
+                    )
                 else:
-                    raise
+                    for e in self.request.data['form']['exportLocations']:
+                        export = Export.create(
+                            country=e['country'],
+                            state=e['state'],
+                            anonymous_society=anon
+                        )
 
-            except Exception as e:
+                anon.save()
+                society_re.save()
+
+                print("Arranco a ejecutar todo")
+                bonita.set_var(4, society_re.anonymous_society.email)
+                bonita.set_var(2, "True")
+                bonita.assign_task()
+                bonita.execute_task()
+
+
+                print("Termine ")
                 return Response(
                     {
-                        "status": False,
+                        "status": True,
                         "payload": {},
-                        "errors": str(e),
+                        "errors": [],
                     },
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_200_OK
                 )
 
+            else:
+                raise
+
+            # except Exception as e:
+            #     return Response(
+            #         {
+            #             "status": False,
+            #             "payload": {},
+            #             "errors": str(e),
+            #         },
+            #         status=status.HTTP_400_BAD_REQUEST
+            #     )
 
         try:
             logged = bonita.is_logged_in()
@@ -248,10 +247,10 @@ class BonitaProcessView(APIView):
                 society_re.caseid = bonita.case_id
                 society_re.save()
 
-                bonita_set_variables = bonita.set_var(1,society_re.id)
+                bonita_set_variables = bonita.set_var(1, society_re.id)
                 bonita.set_var(4, society_re.anonymous_society.email)
-                
-                #bonita_set_variables = 200
+
+                # bonita_set_variables = 200
 
                 if bonita_set_variables == 200:
 
@@ -311,7 +310,8 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
                         active_cases.append(case)
             return SocietyRegistration.objects.filter(caseid__in=active_cases)
         else:
-            return SocietyRegistration.objects.filter(status=1)
+            # return SocietyRegistration.objects.filter(status=1)
+            return []
 
 
 class ValidateRegistrationFormView(APIView):
@@ -339,17 +339,17 @@ class ValidateRegistrationFormView(APIView):
                     st = Status.objects.get(id=2)
                     society.status = st
                     society.save()
-                    #aca setea
-                    bonita.set_var(2,"True")
+                    # aca setea
+                    bonita.set_var(2, "True")
                 else:
                     st = Status.objects.get(id=3)
-                    
+
                     time_H = int(request.data.get('time', None))
                     time_M = 60000 * time_H
                     bonita.set_var(5, time_M)
                     bonita.set_var(6, str(time_H))
 
-                    bonita.set_var(2,"False")
+                    bonita.set_var(2, "False")
 
                     society.status = st
                     society.save()
@@ -416,7 +416,6 @@ class AllCountriesView(APIView):
 #    ...:    ...: print(r.json())
 #    ...:   Luego deberia hacer un for iterando por las keys y crear un nuevo diccionario con la data de lenguaje y continente.
 
-
             return Response(
                 {
                     "status": True,
@@ -449,7 +448,7 @@ class EmailView(APIView):
         id = request.data.get('id', None)
 
         try:
-            
+
             send_email(id, content)
 
             return Response(
@@ -484,20 +483,18 @@ class ValidateTramiteView(APIView):
         id = request.data.get('id', None)
         observation = request.data.get('observation', None)
 
-
         logged = bonita.is_logged_in()
-
 
         if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
                 if status_data == 'reject':
-                    bonita.set_var(3,"False")
+                    bonita.set_var(3, "False")
                     if observation:
                         society.observation = observation
                         society.save()
                 else:
-                    bonita.set_var(3,"True")
+                    bonita.set_var(3, "True")
 
                 bonita.get_human_task()
                 bonita.assign_task()
@@ -654,12 +651,12 @@ class GenerateFolderView(APIView):
     def create_folder(self, service, society):
 
         file_metadata = {
-        'name': society.file_number,
-        'mimeType': 'application/vnd.google-apps.folder'
+            'name': society.file_number,
+            'mimeType': 'application/vnd.google-apps.folder'
         }
         file = service.files().create(body=file_metadata,
-                                            fields='id').execute()
-        print ('Folder ID: %s' % file.get('id'))
+                                      fields='id').execute()
+        print('Folder ID: %s' % file.get('id'))
 
         payload = {
             "role": "reader",
@@ -674,37 +671,36 @@ class GenerateFolderView(APIView):
         from .utils import create_pdf
 
         file_metadata = {
-        'name': 'estatuto.pdf',
-        'parents': [folder_id]
+            'name': 'estatuto.pdf',
+            'parents': [folder_id]
         }
         media = MediaFileUpload(society.anonymous_society.statute.file.name,
                                 mimetype='application/pdf',
                                 resumable=True)
         file = service.files().create(body=file_metadata,
-                                            media_body=media,
-                                            fields='id').execute()
+                                      media_body=media,
+                                      fields='id').execute()
 
-        print ('File ID: %s' % file.get('id'))
+        print('File ID: %s' % file.get('id'))
 
         create_pdf(society)
 
         pdf = open("mypdf.pdf", "rb")
-                    
+
         file_metadata = {
-        'name': 'info_publica.pdf',
-        'parents': [folder_id]
+            'name': 'info_publica.pdf',
+            'parents': [folder_id]
         }
         media = MediaFileUpload('./' + pdf.name,
                                 mimetype='application/pdf',
                                 resumable=True)
         file = service.files().create(body=file_metadata,
-                                            media_body=media,
-                                            fields='id').execute()
+                                      media_body=media,
+                                      fields='id').execute()
 
-        print ('File ID: %s' % file.get('id'))
+        print('File ID: %s' % file.get('id'))
 
-        os.remove("mypdf.pdf") 
-
+        os.remove("mypdf.pdf")
 
     def post(self, request):
 
@@ -727,7 +723,8 @@ class GenerateFolderView(APIView):
             # created automatically when the authorization flow completes for the first
             # time.
             if os.path.exists('token.json'):
-                creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+                creds = Credentials.from_authorized_user_file(
+                    'token.json', SCOPES)
             # If there are no (valid) credentials available, let the user log in.
             if not creds or not creds.valid:
                 if creds and creds.expired and creds.refresh_token:
@@ -759,7 +756,7 @@ class GenerateFolderView(APIView):
             self.upload_file(service, folder_id, society)
 
             content = ('Se ha generado correctamente la carpeta digital.\n \n'
-                        'Para acceder a la carpeta en Google Drive ingresa al siguiente link: https://drive.google.com/drive/folders/' + folder_id)
+                       'Para acceder a la carpeta en Google Drive ingresa al siguiente link: https://drive.google.com/drive/folders/' + folder_id)
 
             send_email(id, content)
 
@@ -768,14 +765,14 @@ class GenerateFolderView(APIView):
             bonita.execute_task()
 
             return Response(
-                    {
-                        "status": True,
-                        "payload": {},
-                        "errors": [],
-                    },
-                    status=status.HTTP_200_OK
+                {
+                    "status": True,
+                    "payload": {},
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
             )
-           
+
         except Exception as e:
             return Response(
                 {

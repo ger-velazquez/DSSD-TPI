@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { CorporationForm, CountryAndState, Partner } from '../../interfaces/FormInterfaces';
+import { CorporationForm, CountryAndState, Partner, SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
 
 export interface Props {
-  societyData: CorporationForm;
+  societyData: SocietyRegistrationWithForm;
 }
 
 export interface State { }
@@ -14,7 +14,8 @@ export class SocietyData extends React.Component<Props, State> {
   }
 
   render() {
-    const { societyData } = this.props;
+    const { form: societyData, societyRegistration } = this.props.societyData;
+
     return (
       <>
         <div className="mb-3 ">
@@ -87,6 +88,26 @@ export class SocietyData extends React.Component<Props, State> {
           </div>
         }
 
+        {
+          societyRegistration.fileNumber &&
+          <div className="mb-3">
+            <span className="font-weight-bold "> Numero de Expediente: </span>  {societyRegistration.fileNumber}
+          </div>
+        }
+
+        {
+          societyRegistration.hash &&
+          <div className="mb-3">
+            <span className="font-weight-bold "> Numero de Hash Asociado: </span>  {societyRegistration.hash}
+          </div>
+        }
+
+        {
+          societyRegistration.qr &&
+          <div className="mb-3" >
+            <img src={societyRegistration.qr} alt="QR de una sociedad" />
+          </div>
+        }
       </>
     );
   }

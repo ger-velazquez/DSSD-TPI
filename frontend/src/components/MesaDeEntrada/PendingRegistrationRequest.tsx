@@ -175,7 +175,7 @@ export class PendingRegistrationRequest extends React.Component<Props, State> {
                     <GenericInputForm
                       name="numberOfHoursForResend"
                       type="number"
-                      labelText="Cantidad de horas para el reenvio"
+                      labelText="Cantidad de minutos para el reenvio"
                       onKeyUp={(event: React.ChangeEvent<HTMLInputElement>, formKey: string) => this.customHandleChange(event, formKey)}
                     />
 

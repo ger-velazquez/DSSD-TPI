@@ -63,6 +63,11 @@ export class GenerateFolder extends React.Component<Props, State> {
     }
   }
 
+  handleClick(id: number) {
+    SocietyService.generateFolder(id);
+    // window.location.reload();
+  }
+
 
   render() {
     return (
@@ -79,6 +84,7 @@ export class GenerateFolder extends React.Component<Props, State> {
         />
         <ManageCollectionOfItemsGenerateFolder
           collection={this.state.pendingForms}
+          handleClick={(id: number) => this.handleClick(id)}
           showDataInModal={(societyRegistrationData: SocietyRegistrationWithForm) => this.setState({ showSociety: { modalVisibility: true, modalContent: societyRegistrationData } })}
         />
 

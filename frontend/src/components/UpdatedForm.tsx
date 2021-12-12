@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { SocietyRegistrationWithForm } from '../interfaces/FormInterfaces';
+import BonitaService from '../services/BonitaService';
 import { SAFormV2 } from './SAFormV2';
 
 export interface Props {
@@ -14,15 +15,22 @@ export class UpdatedForm extends React.Component<Props,State> {
     super(props);
   }
 
+  async componentDidMount() {
+    const userInformation = BonitaService.getUserInformationInLocalStorage();
+
+    const bonitaToken = userInformation.bonitaToken;
+    const userId = userInformation.currentUserId;
+    const jsessionId = userInformation.currentJsessionId;
+    const responseTest = await BonitaService.sendLoginToBackend(userId, bonitaToken, jsessionId);
+  }
+  
+  
   render() {
     return (
       <>
         <SAFormV2
           society={this.props.society}
         />
-        <div>
-          ACA ESTA EL FORM UPDATEADO
-        </div>
       </>
     );
   }

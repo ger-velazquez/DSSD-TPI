@@ -4,6 +4,10 @@ import { SocietyRegistrationPendingFormsResponse } from "../interfaces/SocietyRe
 
 class FormatUtils {
   
+  removeSpaceInString(aString: string) {
+    return aString.replace(/\s/g, '');
+  }
+
   formatPartners(collectionsOfPartners: any[]): Partner[] {
     return collectionsOfPartners.map( (partner) => {
       return ({
@@ -45,10 +49,12 @@ class FormatUtils {
           dueDate: element.due_date,
           observation: element.observation,
           fileNumber: element.file_number,
+          hash: element.hash,
           dateCreated: element.date_created,
           status: element.status.id,
           qr: element.qr ? element.qr : "",
-          is_invalid: !!element.is_invalid
+          is_invalid: !!element.is_invalid,
+          caseId: element.caseid? element.caseid : ""
         }
       }
 

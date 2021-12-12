@@ -76,7 +76,7 @@ export enum BonitaGroupsPath {
 
 
 export enum BonitaExtraPath {
-  updatedForm = "/solicitantes/:formId",
+  updatedForm = "/reenvio/:formId",
   managePendingForms = "/mesa-de-entrada/pending-forms"
 }
 

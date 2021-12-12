@@ -28,7 +28,7 @@ export class ManageCollectionOfItems extends React.Component<Props, State> {
           {
             this.props.collection.map((element: SocietyRegistrationWithForm) => {
               return (
-                <div>
+                <div key={element.societyRegistration.id}>
                   <Row className="mx-auto">
                     <Col xs="6" md="6" sm="6" >
                       <div className="d-flex justify-content-start" onClick={() => this.props.showDataInModal(element)} >

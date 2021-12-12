@@ -2,19 +2,35 @@ import { CorporationForm, GenericHttpResponse } from "../interfaces/FormInterfac
 import HttpClient from "./HttpClient";
 
 class FormService {
-  async uploadAnonymousSociety(formData: CorporationForm): Promise<GenericHttpResponse<any>> {
-    const formUploaded: GenericHttpResponse<any> = await HttpClient.post(
-      "api/process",
-      {
-        form: formData
-      }
-    );
+  async uploadAnonymousSociety(formData: CorporationForm, id?: string): Promise<GenericHttpResponse<any>> {
 
-    return formUploaded;
+    if (!!id) {
+      let formUploaded: GenericHttpResponse<any> = await HttpClient.post(
+        `api/process?id=${id}`,
+        {
+          form: formData
+        }
+      );
+
+      return formUploaded;
+
+    }
+
+    else {
+      let formUploaded: GenericHttpResponse<any> = await HttpClient.post(
+        "api/process",
+        {
+          form: formData
+        }
+      );
+      return formUploaded;
+
+    }
+
   }
 
 
 
 }
 
-export default new FormService ();
+export default new FormService();

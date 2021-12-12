@@ -9,6 +9,7 @@ import SocietyService from '../../services/SocietyService';
 export interface Props {
   collection: Array<SocietyRegistrationWithForm>;
   showDataInModal: (form: SocietyRegistrationWithForm) => void;
+  handleClick: (id: number) => void;
 }
 
 export interface State { }
@@ -21,10 +22,6 @@ export class ManageCollectionOfItemsGenerateFolder extends React.Component<Props
 
   // create hierarchy to define an object to manage individual renders
 
-  handleClick(id: number) {
-    SocietyService.generateFolder(id);
-    window.location.reload();
-  }
   
   render() {
     return (
@@ -45,7 +42,7 @@ export class ManageCollectionOfItemsGenerateFolder extends React.Component<Props
 
                     <Col xs="6" md="6" sm="6">
                       <div className="d-flex justify-content-end flew-row" >
-                        <div onClick={() => this.handleClick(element.societyRegistration.id)} >
+                        <div onClick={() => this.props.handleClick(element.societyRegistration.id)} >
                           <FontAwesomeIcon
                             icon={faFolder}
                           />

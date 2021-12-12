@@ -84,7 +84,7 @@ export class SocietyRegistrationPendingForms extends React.Component<Props, Stat
         <Container>
           <div>
             <h1>
-              Solicitudes de Registro Pendientes de Aprobacion
+              Solicitudes de Registro Pendientes de Aprobacion aaa
             </h1>
           </div>
           <ManageCollectionOfItems

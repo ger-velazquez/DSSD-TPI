@@ -33,6 +33,8 @@ export interface SocietyRegistrationInterface {
   dateCreated: Date;
   qr?: string;
   is_invalid?: boolean;
+  hash?: string;
+  caseId?: string;
 }
 
 export interface SocietyRegistrationPendingFormsResponse {
@@ -57,7 +59,8 @@ export interface SocietyRegistrationPendingFormsResponse {
   due_date: Date;
   observation: string | null;
   file_number: string;
-  hash: string;
+  hash?: string;
+  caseid?: string;
   date_created: Date;
   status: {
     id: number;

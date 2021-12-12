@@ -2,7 +2,10 @@ import * as React from 'react';
 import { Container } from 'react-bootstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { mockedPendingForms, societyWithFormInitializer } from '../constants/FormConstants';
+import { BonitaGroupsPath, BonitaOrganizationGroups, BonitaUserInformation } from '../interfaces/BonitaInterfaces';
 import { SocietyRegistrationWithForm } from '../interfaces/FormInterfaces';
+import { LocalStorageKeys } from '../interfaces/LocalStorageInterfaces';
+import LocalStorageService, { CacheContent } from '../services/LocalStorageService';
 import SocietyService from '../services/SocietyService';
 import { UpdatedForm } from './UpdatedForm';
 
@@ -37,6 +40,20 @@ class UpdatedFormWrapper extends React.Component<PropsType, State> {
   
 
   render() {
+
+    const userIdentification = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation)
+    console.log(userIdentification);
+    
+    if (userIdentification) {
+      if (userIdentification.content.currentUserGroup !== BonitaOrganizationGroups.solicitante) {
+        return (
+          <div>
+            Inicie Sesion
+          </div>
+        )
+      }
+    }
+
     if (this.state.society == societyWithFormInitializer) {
       return (<><div>
         Son iguales pa

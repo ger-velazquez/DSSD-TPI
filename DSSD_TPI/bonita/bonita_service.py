@@ -157,7 +157,12 @@ class BonitaService:
 
     
     def assign_task(self):
-
+        print("DATOS DE BONITA")
+        print(self.userid)
+        print(self.token)
+        print(self.sessionid)
+        print(self.human_task_id)
+        print("======================")
         url = ('{}/{}'.format(self.url, 'API/bpm/userTask/')) + str(self.human_task_id)
         
         cookies = {

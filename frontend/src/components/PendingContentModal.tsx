@@ -34,7 +34,7 @@ export class PendingContentModal extends React.Component<Props, State> {
           <Row>
             <Col xs={12} md={12} sm={12}>
               <SocietyData
-                societyData={societyData}
+                societyData={this.props.societyRegistrationData}
               />
             </Col>
           </Row>
