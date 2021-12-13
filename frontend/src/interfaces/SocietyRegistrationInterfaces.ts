@@ -72,8 +72,8 @@ export interface SocietyRegistrationPendingFormsResponse {
 
 export interface PendingFormRejected {
   rejectReason: string;
-  numberOfHoursForResend: number;
   registrationId: number;
+  numberOfHoursForResend?: number;
 }
 // export interface ManageCollectionInterface {
 //   collectionId: number;

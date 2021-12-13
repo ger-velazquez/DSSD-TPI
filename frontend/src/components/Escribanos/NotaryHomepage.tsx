@@ -1,7 +1,7 @@
-import { Formik } from 'formik';
+import { Formik, Form } from 'formik';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import { Col, Container, Form, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import { defaultValuesForSocietyRegistration, defaultValuesForForm } from '../../constants/FormConstants';
 import { ProcessStep } from '../../interfaces/BonitaInterfaces';
 import { AlertTypes, GenericHttpResponse, SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
@@ -36,7 +36,6 @@ export class NotaryHomepage extends React.Component<Props, State> {
       showRejectionModal: false,
       pendingFormRejected: {
         rejectReason: "",
-        numberOfHoursForResend: 0,
         registrationId: -1,
       },
       showSociety: {
@@ -47,6 +46,8 @@ export class NotaryHomepage extends React.Component<Props, State> {
         },
       }
     }
+
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
   async componentDidMount() {
@@ -76,17 +77,16 @@ export class NotaryHomepage extends React.Component<Props, State> {
         pendingFormRejected: {
           registrationId: registrationId,
           rejectReason: "",
-          numberOfHoursForResend: -1,
         },
         showRejectionModal: true,
       })
     }
     else {
-      this.sendMessage(registrationId, action, "", -1);
+      this.sendMessage(registrationId, action, "");
     }
   }
 
-  async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string, numberOfHoursForResend: number) {
+  async sendMessage(registrationID: number, action: ManageCollectionActions, reason: string) {
     const response: GenericHttpResponse<any> = await SocietyService.updatePendingProcess(registrationID, action, reason);
     if (response.status) {
       AlertUtils.notifyWithCallback(
@@ -110,7 +110,6 @@ export class NotaryHomepage extends React.Component<Props, State> {
       pendingFormRejected: {
         registrationId: -1,
         rejectReason: "",
-        numberOfHoursForResend: -1,
       }
     })
   }
@@ -148,15 +147,12 @@ export class NotaryHomepage extends React.Component<Props, State> {
             <Formik
               initialValues={{
                 rejectReason: "",
-                numberOfHoursForResend: 0,
               }}
               onSubmit={(form) => this.sendMessage(
                 this.state.pendingFormRejected.registrationId,
                 ManageCollectionActions.reject,
                 this.state.pendingFormRejected.rejectReason,
-                this.state.pendingFormRejected.numberOfHoursForResend
               )}
-            // validate={(values) => this.handleValidations(values)}
             >
               <Form>
                 <Row>

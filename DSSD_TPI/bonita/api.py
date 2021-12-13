@@ -164,6 +164,7 @@ class BonitaProcessView(APIView):
                 print("Arranco a ejecutar todo")
                 bonita.set_var(4, society_re.anonymous_society.email)
                 bonita.set_var(2, "True")
+                bonita.get_human_task()
                 bonita.assign_task()
                 bonita.execute_task()
 

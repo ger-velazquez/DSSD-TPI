@@ -65,7 +65,7 @@ export class GenerateFolder extends React.Component<Props, State> {
 
   handleClick(id: number) {
     SocietyService.generateFolder(id);
-    // window.location.reload();
+    window.location.reload();
   }
 
 

@@ -157,13 +157,17 @@ class BonitaService:
 
     
     def assign_task(self):
-        print("DATOS DE BONITA")
-        print(self.userid)
-        print(self.token)
-        print(self.sessionid)
-        print(self.human_task_id)
-        print("======================")
         url = ('{}/{}'.format(self.url, 'API/bpm/userTask/')) + str(self.human_task_id)
+        print("")
+        print("DATOS DE BONITA")
+        print("UserId:"+self.userid)
+        print("Token:"+self.token)
+        print("CaseId:"+self.case_id)
+        print("SessionId:"+self.sessionid)
+        print("Human Task Id:"+self.human_task_id)
+        print("======================")
+        print("Url:"+url)
+        print("")
         
         cookies = {
             'JSESSIONID': self.sessionid,

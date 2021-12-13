@@ -158,7 +158,7 @@ export class PendingRegistrationRequest extends React.Component<Props, State> {
                 this.state.pendingFormRejected.registrationId,
                 ManageCollectionActions.reject,
                 this.state.pendingFormRejected.rejectReason,
-                this.state.pendingFormRejected.numberOfHoursForResend
+                this.state.pendingFormRejected.numberOfHoursForResend!
               )}
             // validate={(values) => this.handleValidations(values)}
             >
