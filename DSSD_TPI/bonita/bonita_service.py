@@ -160,11 +160,11 @@ class BonitaService:
         url = ('{}/{}'.format(self.url, 'API/bpm/userTask/')) + str(self.human_task_id)
         print("")
         print("DATOS DE BONITA")
-        print("UserId:"+self.userid)
-        print("Token:"+self.token)
-        print("CaseId:"+self.case_id)
-        print("SessionId:"+self.sessionid)
-        print("Human Task Id:"+self.human_task_id)
+        print("UserId:"+ str(self.userid))
+        print("Token:"+str(self.token))
+        print("CaseId:"+str(self.case_id))
+        print("SessionId:"+str(self.sessionid))
+        print("Human Task Id:"+str(self.human_task_id))
         print("======================")
         print("Url:"+url)
         print("")
@@ -313,6 +313,74 @@ class BonitaService:
     def active_cases(cls, caseid):
 
         url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/humanTask?f=caseId=') + str(caseid) )
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        return res.json()
+
+    
+    @classmethod
+    def archived_cases(cls):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/archivedCase?c=1000'))
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        return res.json()
+
+    @classmethod
+    def case_info(cls, caseid):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/caseInfo/') + str(caseid))
+
+        cookies = {
+            'JSESSIONID': cls.sessionid_class,
+            'X-Bonita-API-Token': cls.token_class
+        }
+
+        res = requests.get(
+            url,
+            cookies=cookies,
+            headers={
+                "Content-type": "application/json",
+                'JSESSIONID': cls.sessionid_class,
+                'X-Bonita-API-Token': cls.token_class
+            }
+        )
+
+        return res.json()
+
+    
+    @classmethod
+    def currently_active_cases(cls):
+
+        url = ('{}/{}'.format(settings.BONITA_URL,'API/bpm/case?p=0&c=100'))
 
         cookies = {
             'JSESSIONID': cls.sessionid_class,

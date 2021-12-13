@@ -142,3 +142,14 @@ class LoginSerializer(serializers.Serializer):
     sessionid = serializers.CharField()
     token = serializers.CharField()
     userid = serializers.CharField()
+
+
+class CompletedCasesSerializer(serializers.Serializer):
+    count = serializers.CharField()
+    total_seconds = serializers.CharField()
+    average = serializers.CharField()
+
+
+class CountCaseEntradaEcribanoSerializer(serializers.Serializer):
+    count_entrada = serializers.CharField()
+    count_escribano = serializers.CharField()

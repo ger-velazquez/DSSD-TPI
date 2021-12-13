@@ -11,7 +11,9 @@ from bonita.api import (
     GenerateFileNumberView,
     EstampilladoView,
     GenerateFolderView,
-    LoginView
+    LoginView,
+    CompletedCasesView,
+    CountCaseEntradaEcribanoView
 )
 
 app_name = "bonita"
@@ -55,10 +57,20 @@ bonita_urls = [
         GenerateFolderView.as_view(),
         name='generate-folder'
     ),
-        url(
+    url(
         r'^login$',
         LoginView.as_view(),
         name='login'
+    ),
+    url(
+        r'^completed-cases$',
+        CompletedCasesView.as_view(),
+        name='completed-cases'
+    ),
+    url(
+        r'^entrada-escribano$',
+        CountCaseEntradaEcribanoView.as_view(),
+        name='entrada-escribano$'
     ),
     url(r'^', include(router.urls)),
     url(

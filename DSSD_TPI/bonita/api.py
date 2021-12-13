@@ -16,6 +16,7 @@ from django.core.files.base import ContentFile
 from PIL import Image
 from io import BytesIO
 import os
+import datetime
 
 import os.path
 from googleapiclient.discovery import build
@@ -32,7 +33,9 @@ from anonymous_societys.serializers import (
     GenerateFileNumberSerializer,
     EstampilladoSerializer,
     GenerateFolderSerializer,
-    LoginSerializer
+    LoginSerializer,
+    CompletedCasesSerializer,
+    CountCaseEntradaEcribanoSerializer
 )
 
 bonita = BonitaService()
@@ -773,6 +776,106 @@ class GenerateFolderView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class CompletedCasesView(APIView):
+    serializer_class = CompletedCasesSerializer
+
+    def get(self, request):
+
+        count = 0
+        total_seconds = 0
+        average = 0
+
+        try:
+            
+            archived_cases = BonitaService.archived_cases()
+
+            if archived_cases:
+                for ar in archived_cases:
+                    case_info = BonitaService.case_info(ar['rootCaseId'])
+                    if 'Generar carpeta fisica' in case_info['flowNodeStatesCounters']:
+                        if 'completed' in case_info['flowNodeStatesCounters']['Generar carpeta fisica']:
+                            if case_info['flowNodeStatesCounters']['Generar carpeta fisica']['completed'] == 1:
+                                count += 1
+                                start = ar['start'][:ar['start'].index(".")]
+                                start = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+                                end = ar['end_date'][:ar['end_date'].index(".")]
+                                end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+                                subtract = end - start
+                                subtract = str(int(subtract.total_seconds()//60)) +'.'+ str(int(subtract.total_seconds()%60))
+                                total_seconds += float(subtract)
+            
+            if count is not 0 and total_seconds is not 0:
+                average = total_seconds / count
+                average = round(average, 2)
+
+            json = {
+                        'count': str(count),
+                        'total_seconds': str(total_seconds),
+                        'average': str(average)
+                    }
+
+            serializer = self.serializer_class(json)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+        except Exception as e:
+            return Response(
+                {
+                    "status": False,
+                    "payload": {},
+                    "errors": str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class CountCaseEntradaEcribanoView(APIView):
+    serializer_class = CountCaseEntradaEcribanoSerializer
+
+    def get(self, request):
+
+        count_escribano = 0
+        count_entrada = 0
+
+        task1_entrada = "Validacion de formularios de inscripcion"
+        task2_entrada = "Generar carpeta fisica"
+        task_escribano = "Determinar validez del tramite"
+
+        try:
+            
+            currently_active_cases = BonitaService.currently_active_cases()
+
+            if currently_active_cases:
+                for ac in currently_active_cases:
+                    task = BonitaService.active_cases(ac['id'])
+                    if task:
+                        if task[0]['displayName'] == task1_entrada or task[0]['displayName'] == task2_entrada:
+                            count_entrada += 1
+
+                        if task[0]['displayName'] == task_escribano:
+                            count_escribano += 1
+
+
+            json = {
+                        'count_entrada': str(count_entrada),
+                        'count_escribano': str(count_escribano),
+                    }
+
+            serializer = self.serializer_class(json)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
 
         except Exception as e:
             return Response(
