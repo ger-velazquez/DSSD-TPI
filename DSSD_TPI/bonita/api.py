@@ -17,6 +17,7 @@ from PIL import Image
 from io import BytesIO
 import os
 import datetime
+import pycountry
 
 import os.path
 from googleapiclient.discovery import build
@@ -795,10 +796,32 @@ class GenerateFolderView(APIView):
 class DashboardView(APIView):
     #serializer_class = CountCaseEntradaEcribanoSerializer
 
-    def graphql(self):        
-        #top_3_countries = Country.objects.annotate(num_export=Count('export')).order_by('-num_export')[:3]
+    def graphql(self, code):
+        url = "https://countries.trevorblades.com"
 
+        json = {
+                'query': '''
+                    {
+                    country(code: "'''+str(code)+'''") {
+                        name
+                        native
+                        capital
+                        currency
+                        languages {
+                            code
+                            name
+                        }
+                    }
+                    }'''
+            }
+
+        res = requests.post(url, json=json)
+        return res.json()
+
+
+    def exports(self):        
         society_completed = []
+        info_exports = []
             
         archived_cases = BonitaService.archived_cases()
 
@@ -824,18 +847,24 @@ class DashboardView(APIView):
             map(lambda country_object: country_object.country.name, array_of_exports))
             countries_occurrences = dict(Counter(countries_names))
 
-            print (countries_occurrences)
-
             sort_orders = {k: v for k, v in sorted(countries_occurrences.items(), key=lambda item: item[1], reverse=True)}
-
-            print (sort_orders)
 
             top_3_countries = dict(list(sort_orders.items())[:3])
             
-            print (top_3_countries)
-
-            #import pdb; pdb.set_trace()
-
+            for country in top_3_countries:
+                code = pycountry.countries.search_fuzzy(country)
+                code = code[0].alpha_2
+                response = self.graphql(code)
+                json = {
+                        'name': country,
+                        'quantity': top_3_countries[country],
+                        'currency': response['data']['country']['currency'],
+                        'capital': response['data']['country']['capital'],
+                        'languages': response['data']['country']['languages']
+                }
+                info_exports.append(json)
+            
+        return info_exports
 
     def completed_cases(self):
         count = 0
@@ -920,7 +949,7 @@ class DashboardView(APIView):
 
             completed_cases = self.completed_cases()
 
-            graphql = self.graphql()
+            exports = self.exports()
 
             return Response(
                 {
@@ -928,7 +957,8 @@ class DashboardView(APIView):
                     "payload":
                     {
                         'info_entrada_escribano': cases_entrada_escribano,
-                        'info_completed_cases': completed_cases
+                        'info_completed_cases': completed_cases,
+                        'info_exports': exports
                     },
                     "errors": [],
                 },
