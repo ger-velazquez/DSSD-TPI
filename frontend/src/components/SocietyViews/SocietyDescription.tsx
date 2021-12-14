@@ -1,8 +1,13 @@
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { SocietyRegistrationWithForm } from '../../interfaces/FormInterfaces';
+import { SocietySearchConditions } from '../../interfaces/SocietyRegistrationInterfaces';
+import SocietyService from '../../services/SocietyService';
+import { AppTitle } from '../Generic/AppTitle';
+import { SocietyData } from './SocietyData';
 
 type PathParamsType = {
-  fileNumber: string,
+  hash: string,
 }
 
 // Your component own properties
@@ -10,19 +15,43 @@ type PropsType = RouteComponentProps<PathParamsType> & {
   someString: string,
 }
 
-class SocietyDescription extends React.Component<PropsType> {
+interface State {
+  societyRegistration: SocietyRegistrationWithForm | null;
+}
+
+class SocietyDescription extends React.Component<PropsType, State> {
 
   constructor(props: any) {
     super(props);
+    this.state = {
+      societyRegistration: null
+    }
   }
+  
+  async componentDidMount() {
+    const hash = this.props.match.params.hash;
+    const societyRegistration = await SocietyService.getSocietyByCondition(hash, SocietySearchConditions.hash);
+    this.setState({
+      societyRegistration
+    })
+  }
+  
   
   render() {
 
-    const test = this.props.match.params.fileNumber;
+    
+    if (!!this.state.societyRegistration === false) {
+      return null;
+    }
 
     return (
       <>
-      Nueva Vista dice {test}
+      <div className="mb-5">
+        <AppTitle title="Informacion de la sociedad" />
+      </div>
+        <SocietyData
+          societyData={this.state.societyRegistration!}
+        />
       </>
     );
   }

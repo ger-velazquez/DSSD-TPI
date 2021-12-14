@@ -65,13 +65,13 @@ export class SAFormV2 extends React.Component<Props, State> {
   async componentDidMount() {
 
     console.log(this.props.society);
-    
+
     if (this.props.society) {
       if (this.props.society.societyRegistration.caseId) {
         const collectionInValidateForDeskStaff = await SocietyService.getPendingForms(this.props.society.societyRegistration.caseId, ProcessStep.validateForm);
         const collectionInValidateForNotaries = await SocietyService.getPendingForms(this.props.society.societyRegistration.caseId, ProcessStep.validateProcess);
-        
-        if (collectionInValidateForDeskStaff.length > 0 || collectionInValidateForNotaries.length > 0 ) {
+
+        if (collectionInValidateForDeskStaff.length > 0 || collectionInValidateForNotaries.length > 0) {
           this.setState({
             showForCaseId: false
           })
@@ -243,8 +243,8 @@ export class SAFormV2 extends React.Component<Props, State> {
   render() {
     const partnersOptions: string[] = this.getPartnersOptions()
 
-    console.log(this.state);
-    
+    // console.log(this.state);
+
     if (!this.state.showForCaseId) {
       return (
         <div>
@@ -329,6 +329,18 @@ export class SAFormV2 extends React.Component<Props, State> {
                     </>
                   }
 
+                  {
+                    this.props.society && this.props.society.societyRegistration.observation &&
+                    <div>
+                      <div>
+                        Observaciones
+                      </div>
+                      <div>
+                        {this.props.society.societyRegistration.observation}
+                      </div>
+                    </div>
+                  }
+
                 </Col>
 
                 <Col md="6" sm="12" >
@@ -382,6 +394,7 @@ export class SAFormV2 extends React.Component<Props, State> {
                   </div>
                 </Row>
               }
+
 
 
 

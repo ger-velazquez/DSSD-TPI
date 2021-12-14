@@ -1,6 +1,6 @@
 import { ProcessStep } from "../interfaces/BonitaInterfaces";
 import { GenericHttpResponse, SocietyRegistrationWithForm } from "../interfaces/FormInterfaces";
-import { ManageCollectionActions, SocietyRegistrationPendingFormsResponse } from "../interfaces/SocietyRegistrationInterfaces";
+import { ManageCollectionActions, SocietyRegistrationPendingFormsResponse, SocietySearchConditions } from "../interfaces/SocietyRegistrationInterfaces";
 import FormatUtils from "../Utils/FormatUtils";
 import HttpClient from "./HttpClient";
 
@@ -8,12 +8,7 @@ class SocietyService {
 
   //
   async updatePendingForm(registrationID: number, action: ManageCollectionActions, reason: string, numberOfHoursForResend: number): Promise<GenericHttpResponse<any>> {
-    console.log("Los datos a enviar son:");
-    console.log(`RegistrationId: ${registrationID}`);
-    console.log(`Action: ${action}`);
-    console.log(`Reason: ${reason}`);
-    console.log(`Numero de Horas para el reenvio: ${numberOfHoursForResend}`); 
-    
+
     const response: GenericHttpResponse<any> = await HttpClient.post(
       "api/validate-reg-form",
       {
@@ -32,8 +27,8 @@ class SocietyService {
     console.log(`RegistrationId: ${registrationID}`);
     console.log(`Action: ${action}`);
     console.log(`Observaciones: ${observation}`);
-    
-    
+
+
     const response: GenericHttpResponse<any> = await HttpClient.post(
       "api/validate-tramite",
       {
@@ -56,15 +51,14 @@ class SocietyService {
     let updatedResponse = FormatUtils.formatPendingFormsResponse([response[0]])
     return updatedResponse;
   }
-  
+
   async getPendingForms(collectionOfCasesId: string, step: ProcessStep) {
     let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
       `api/societies/?task=${step}&caseid=${collectionOfCasesId}`
     );
     let test = FormatUtils.formatPendingFormsResponse(response);
 
-    console.log("DATA");
-    console.log(response);    
+ 
     return test;
   }
 
@@ -74,7 +68,7 @@ class SocietyService {
     );
     let test = FormatUtils.formatPendingFormsResponse(response);
     return test;
-  
+
   }
 
   async getPendingFormsWithCasesId(activeCasesId: string[]) {
@@ -95,9 +89,18 @@ class SocietyService {
     );
 
     return response;
-    
+
   }
 
+  async getSocietyByCondition(searchedValue: string, condition: SocietySearchConditions) {
+    let response: SocietyRegistrationPendingFormsResponse[] = await HttpClient.get(
+      `api/societies/?${condition}=${searchedValue}`
+    );
+
+    let updatedResponse = FormatUtils.formatPendingFormsResponse([response[0]])
+    return updatedResponse[0];
+
+  }
 }
 
 export default new SocietyService()

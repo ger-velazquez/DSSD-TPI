@@ -63,8 +63,8 @@ export class GenerateFolder extends React.Component<Props, State> {
     }
   }
 
-  handleClick(id: number) {
-    SocietyService.generateFolder(id);
+  async handleClick(id: number) {
+    const asd = await SocietyService.generateFolder(id);
     window.location.reload();
   }
 
