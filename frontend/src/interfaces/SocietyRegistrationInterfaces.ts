@@ -8,9 +8,15 @@ export interface SocietyRegistrationRoutes {
 export enum SocietyRegistrationPaths {
   pendingForms = "/pending-forms",
   registrationForm = "/registration",
-  societyDescription = "/society/:fileNumber",
+  societyDescription = "/society/:hash",
   generateFolder = "/mesa-de-entrada/generate-folder",
   login = "/login",
+}
+
+export enum SocietySearchConditions {
+  id= "id",
+  hash = "hash",
+  fileNumber = "file_number"
 }
 
 export interface ManagePendingForms {
