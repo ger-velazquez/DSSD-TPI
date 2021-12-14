@@ -24,6 +24,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.http import MediaFileUpload
+from django.db.models import Count
 
 from anonymous_societys.serializers import (
     SocietyRegistrationSerializer,
@@ -33,9 +34,7 @@ from anonymous_societys.serializers import (
     GenerateFileNumberSerializer,
     EstampilladoSerializer,
     GenerateFolderSerializer,
-    LoginSerializer,
-    CompletedCasesSerializer,
-    CountCaseEntradaEcribanoSerializer
+    LoginSerializer
 )
 
 bonita = BonitaService()
@@ -339,6 +338,7 @@ class ValidateRegistrationFormView(APIView):
         if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
+                bonita.case_id = society.caseid
 
                 if status_data == 'accept':
                     st = Status.objects.get(id=2)
@@ -493,6 +493,8 @@ class ValidateTramiteView(APIView):
         if logged:
             try:
                 society = SocietyRegistration.objects.get(id=id)
+                bonita.case_id = society.caseid
+
                 if status_data == 'reject':
                     bonita.set_var(3, "False")
                     if observation:
@@ -716,6 +718,7 @@ class GenerateFolderView(APIView):
 
         try:
             society = SocietyRegistration.objects.get(id=id)
+            bonita.case_id = society.caseid
 
             # If modifying these scopes, delete the file token.json.
             SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -789,93 +792,148 @@ class GenerateFolderView(APIView):
             )
 
 
-class CompletedCasesView(APIView):
-    serializer_class = CompletedCasesSerializer
+class DashboardView(APIView):
+    #serializer_class = CountCaseEntradaEcribanoSerializer
 
-    def get(self, request):
+    def graphql(self):        
+        #top_3_countries = Country.objects.annotate(num_export=Count('export')).order_by('-num_export')[:3]
 
+        society_completed = []
+            
+        archived_cases = BonitaService.archived_cases()
+
+        if archived_cases:
+            for ar in archived_cases:
+                case_info = BonitaService.case_info(ar['rootCaseId'])
+                if 'Generar carpeta fisica' in case_info['flowNodeStatesCounters']:
+                    if 'completed' in case_info['flowNodeStatesCounters']['Generar carpeta fisica']:
+                        if case_info['flowNodeStatesCounters']['Generar carpeta fisica']['completed'] == 1:
+                            so = SocietyRegistration.objects.get(caseid=ar['rootCaseId'])
+                            society_completed.append(so)
+
+        array_of_exports = []
+        
+        if society_completed: 
+
+            for society in society_completed:
+                exports = Export.objects.filter(anonymous_society=society.anonymous_society)
+                for e in exports:
+                    array_of_exports.append(e)
+
+            countries_names = list(
+            map(lambda country_object: country_object.country.name, array_of_exports))
+            countries_occurrences = dict(Counter(countries_names))
+
+            print (countries_occurrences)
+
+            sort_orders = {k: v for k, v in sorted(countries_occurrences.items(), key=lambda item: item[1], reverse=True)}
+
+            print (sort_orders)
+
+            top_3_countries = dict(list(sort_orders.items())[:3])
+            
+            print (top_3_countries)
+
+            #import pdb; pdb.set_trace()
+
+
+    def completed_cases(self):
         count = 0
         total_minutes = 0
         average = 0
-
-        try:
+        list_completed = []
             
-            archived_cases = BonitaService.archived_cases()
+        archived_cases = BonitaService.archived_cases()
 
-            if archived_cases:
-                for ar in archived_cases:
-                    case_info = BonitaService.case_info(ar['rootCaseId'])
-                    if 'Generar carpeta fisica' in case_info['flowNodeStatesCounters']:
-                        if 'completed' in case_info['flowNodeStatesCounters']['Generar carpeta fisica']:
-                            if case_info['flowNodeStatesCounters']['Generar carpeta fisica']['completed'] == 1:
-                                count += 1
-                                start = ar['start'][:ar['start'].index(".")]
-                                start = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
-                                end = ar['end_date'][:ar['end_date'].index(".")]
-                                end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
-                                subtract = end - start
-                                subtract = str(int(subtract.total_seconds()//60)) +'.'+ str(int(subtract.total_seconds()%60))
-                                total_minutes += float(subtract)
-            
-            if count is not 0 and total_minutes is not 0:
-                average = total_minutes / count
-                average = round(average, 2)
+        if archived_cases:
+            for ar in archived_cases:
+                case_info = BonitaService.case_info(ar['rootCaseId'])
+                if 'Generar carpeta fisica' in case_info['flowNodeStatesCounters']:
+                    if 'completed' in case_info['flowNodeStatesCounters']['Generar carpeta fisica']:
+                        if case_info['flowNodeStatesCounters']['Generar carpeta fisica']['completed'] == 1:
+                            count += 1
+                            start = ar['start'][:ar['start'].index(".")]
+                            start = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+                            end = ar['end_date'][:ar['end_date'].index(".")]
+                            end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
+                            subtract = end - start
+                            subtract = str(int(subtract.total_seconds()//60)) +'.'+ str(int(subtract.total_seconds()%60))
+                            total_minutes += float(subtract)
+                            so = SocietyRegistration.objects.get(caseid=ar['rootCaseId'])
+                            list_completed.append(so.anonymous_society.name)
+        
+        if count != 0 and total_minutes != 0:
+            average = total_minutes / count
+            average = round(average, 2)
 
-            json = {
-                        'count': str(count),
-                        'total_minutes': str(total_minutes),
-                        'average': str(average)
-                    }
+        json = {
+                'count': str(count),
+                'total_minutes': str(total_minutes),
+                'average': str(average),
+                'list_completed': list_completed
+                }
+        return json
 
-            serializer = self.serializer_class(json)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-        except Exception as e:
-            return Response(
-                {
-                    "status": False,
-                    "payload": {},
-                    "errors": str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-class CountCaseEntradaEcribanoView(APIView):
-    serializer_class = CountCaseEntradaEcribanoSerializer
-
-    def get(self, request):
+    def cases_entrada_escribano(self):
 
         count_escribano = 0
+        list_escribano = []
         count_entrada = 0
+        list_entrada  = []
 
         task1_entrada = "Validacion de formularios de inscripcion"
         task2_entrada = "Generar carpeta fisica"
         task_escribano = "Determinar validez del tramite"
+            
+        currently_active_cases = BonitaService.currently_active_cases()
+
+        if currently_active_cases:
+            for ac in currently_active_cases:
+                task = BonitaService.active_cases(ac['id'])
+                if task:
+                    if task[0]['displayName'] == task1_entrada or task[0]['displayName'] == task2_entrada:
+                        count_entrada += 1
+                        so = SocietyRegistration.objects.get(caseid=ac['id'])
+                        list_entrada.append(so.anonymous_society.name)
+
+                    if task[0]['displayName'] == task_escribano:
+                        count_escribano += 1
+                        so = SocietyRegistration.objects.get(caseid=ac['id'])
+                        list_escribano.append(so.anonymous_society.name)
+
+
+        json = {
+                    'count_entrada': str(count_entrada),
+                    'list_entrada': list_entrada,
+                    'count_escribano': str(count_escribano),
+                    'list_escribano': list_escribano
+                }
+
+        return json
+
+
+    def get(self, request):
 
         try:
             
-            currently_active_cases = BonitaService.currently_active_cases()
+            cases_entrada_escribano = self.cases_entrada_escribano()
 
-            if currently_active_cases:
-                for ac in currently_active_cases:
-                    task = BonitaService.active_cases(ac['id'])
-                    if task:
-                        if task[0]['displayName'] == task1_entrada or task[0]['displayName'] == task2_entrada:
-                            count_entrada += 1
+            completed_cases = self.completed_cases()
 
-                        if task[0]['displayName'] == task_escribano:
-                            count_escribano += 1
+            graphql = self.graphql()
 
-
-            json = {
-                        'count_entrada': str(count_entrada),
-                        'count_escribano': str(count_escribano),
-                    }
-
-            serializer = self.serializer_class(json)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "status": True,
+                    "payload":
+                    {
+                        'info_entrada_escribano': cases_entrada_escribano,
+                        'info_completed_cases': completed_cases
+                    },
+                    "errors": [],
+                },
+                status=status.HTTP_200_OK
+            )
 
 
         except Exception as e:

@@ -12,8 +12,7 @@ from bonita.api import (
     EstampilladoView,
     GenerateFolderView,
     LoginView,
-    CompletedCasesView,
-    CountCaseEntradaEcribanoView
+    DashboardView
 )
 
 app_name = "bonita"
@@ -63,14 +62,9 @@ bonita_urls = [
         name='login'
     ),
     url(
-        r'^completed-cases$',
-        CompletedCasesView.as_view(),
-        name='completed-cases'
-    ),
-    url(
-        r'^entrada-escribano$',
-        CountCaseEntradaEcribanoView.as_view(),
-        name='entrada-escribano$'
+        r'^dashboard$',
+        DashboardView.as_view(),
+        name='dashboard$'
     ),
     url(r'^', include(router.urls)),
     url(

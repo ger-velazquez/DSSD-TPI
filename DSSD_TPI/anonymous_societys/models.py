@@ -107,7 +107,7 @@ class Associate(models.Model):
     society_registration = models.ForeignKey(SocietyRegistration, null=True, on_delete=models.CASCADE,  related_name='society_registrations')
 
     def __str__(self):
-        return self.name + ' ' + self.last_name
+        return self.name + ' ' + self.last_name + ' -- ' + str(self.society_registration.anonymous_society)
 
     @classmethod
     def create(cls, name, last_name, percentage, society_registration=None):
