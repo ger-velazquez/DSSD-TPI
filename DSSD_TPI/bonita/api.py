@@ -113,6 +113,7 @@ class BonitaProcessView(APIView):
             if logged:
 
                 society_re = SocietyRegistration.objects.get(id=id)
+                bonita.case_id = society_re.caseid
 
                 anon = society_re.anonymous_society
 
@@ -794,7 +795,7 @@ class CompletedCasesView(APIView):
     def get(self, request):
 
         count = 0
-        total_seconds = 0
+        total_minutes = 0
         average = 0
 
         try:
@@ -814,15 +815,15 @@ class CompletedCasesView(APIView):
                                 end = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M:%S")
                                 subtract = end - start
                                 subtract = str(int(subtract.total_seconds()//60)) +'.'+ str(int(subtract.total_seconds()%60))
-                                total_seconds += float(subtract)
+                                total_minutes += float(subtract)
             
-            if count is not 0 and total_seconds is not 0:
-                average = total_seconds / count
+            if count is not 0 and total_minutes is not 0:
+                average = total_minutes / count
                 average = round(average, 2)
 
             json = {
                         'count': str(count),
-                        'total_seconds': str(total_seconds),
+                        'total_minutes': str(total_minutes),
                         'average': str(average)
                     }
 

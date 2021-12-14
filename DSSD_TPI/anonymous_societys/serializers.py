@@ -146,7 +146,7 @@ class LoginSerializer(serializers.Serializer):
 
 class CompletedCasesSerializer(serializers.Serializer):
     count = serializers.CharField()
-    total_seconds = serializers.CharField()
+    total_minutes = serializers.CharField()
     average = serializers.CharField()
 
 
