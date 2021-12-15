@@ -296,6 +296,7 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
         file_number = self.request.query_params.get('file_number', None)
         caseid = self.request.query_params.get('caseid', None)
         task = self.request.query_params.get('task', None)
+        society_name = self.request.query_params.get('society_name', None)
 
         # http://localhost:8080/bonita/API/bpm/humanTask?f=caseId=13
 
@@ -303,6 +304,8 @@ class SocietyRegistrationViewSet(viewsets.ModelViewSet):
             return SocietyRegistration.objects.filter(hash=hash)
         if id:
             return SocietyRegistration.objects.filter(id=id)
+        if society_name:
+            return SocietyRegistration.objects.filter(anonymous_society__name=society_name)
         if file_number:
             return SocietyRegistration.objects.filter(file_number=file_number)
         if caseid:
@@ -344,6 +347,7 @@ class ValidateRegistrationFormView(APIView):
                 if status_data == 'accept':
                     st = Status.objects.get(id=2)
                     society.status = st
+                    society.observation = None
                     society.save()
                     # aca setea
                     bonita.set_var(2, "True")
@@ -502,6 +506,8 @@ class ValidateTramiteView(APIView):
                         society.observation = observation
                         society.save()
                 else:
+                    society.observation = None
+                    society.save()
                     bonita.set_var(3, "True")
 
                 bonita.get_human_task()
