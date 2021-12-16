@@ -42,7 +42,6 @@ class UpdatedFormWrapper extends React.Component<PropsType, State> {
   render() {
 
     const userIdentification = LocalStorageService.getItem<CacheContent<BonitaUserInformation>>(LocalStorageKeys.userInformation)
-    console.log(userIdentification);
     
     if (userIdentification) {
       if (userIdentification.content.currentUserGroup !== BonitaOrganizationGroups.solicitante) {

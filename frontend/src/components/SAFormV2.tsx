@@ -100,7 +100,6 @@ export class SAFormV2 extends React.Component<Props, State> {
   }
 
   async addMediaContent(form: CorporationForm) {
-    console.log("VOY A ENVIAR EL REQUEST");
 
     const formData: CorporationForm = cloneDeep(this.state.corporationForm);
     formData.partners = this.setLegalRepresentative(formData.partners, form.legalRepresentative);

@@ -30,7 +30,8 @@ class SocietyDescription extends React.Component<PropsType, State> {
   
   async componentDidMount() {
     const hash = this.props.match.params.hash;
-    const societyRegistration = await SocietyService.getSocietyByCondition(hash, SocietySearchConditions.hash);
+    const response = await SocietyService.getSocietyByCondition(hash, SocietySearchConditions.hash);
+    const societyRegistration = response[0];
     this.setState({
       societyRegistration
     })

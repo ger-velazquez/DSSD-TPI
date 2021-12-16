@@ -1,7 +1,8 @@
 import { ProcessStep } from "../interfaces/BonitaInterfaces";
 import { GenericHttpResponse, SocietyRegistrationWithForm } from "../interfaces/FormInterfaces";
-import { ManageCollectionActions, SocietyRegistrationPendingFormsResponse, SocietySearchConditions } from "../interfaces/SocietyRegistrationInterfaces";
+import { DashboardBackendResponse, ManageCollectionActions, SocietyRegistrationPendingFormsResponse, SocietySearchConditions } from "../interfaces/SocietyRegistrationInterfaces";
 import FormatUtils from "../Utils/FormatUtils";
+import BonitaService from "./BonitaService";
 import HttpClient from "./HttpClient";
 
 class SocietyService {
@@ -98,9 +99,29 @@ class SocietyService {
     );
 
     let updatedResponse = FormatUtils.formatPendingFormsResponse([response[0]])
-    return updatedResponse[0];
+    return updatedResponse;
 
   }
+
+  async LoginInBackend() {
+    const userInformation = BonitaService.getUserInformationInLocalStorage();
+    const bonitaToken = userInformation.bonitaToken;
+    const userId = userInformation.currentUserId;
+    const jsessionId = userInformation.currentJsessionId;
+    const response = await BonitaService.sendLoginToBackend(userId, bonitaToken, jsessionId);
+
+    return response;
+
+  }
+
+  async getDashboardInformation() {
+    let response: GenericHttpResponse<DashboardBackendResponse> = await HttpClient.get(
+      'api/dashboard'
+    );
+
+    return response;
+  }
+
 }
 
 export default new SocietyService()
