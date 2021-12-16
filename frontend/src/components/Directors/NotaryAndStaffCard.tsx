@@ -31,7 +31,7 @@ export class NotaryAndStaffCard extends React.Component<Props, State> {
 
     return (
       <>
-        <GenericCard classes="p-3 text-left">
+        <GenericCard classes="p-3 text-left m-3">
           <Card.Header className="text-center">
             <h4>
               Estado de casos
@@ -94,7 +94,7 @@ export class NotaryAndStaffCard extends React.Component<Props, State> {
                   {
                     list_escribano.map((societyName: string) => {
                       return (
-                        <div className="mb-1" style={{ display: 'flex', flexDirection: 'row' }}>
+                        <div onClick={() => this.props.handleModal(societyName)} className="mb-1" style={{ display: 'flex', flexDirection: 'row', cursor: 'pointer' }}>
                           <div className="pr-2">
                             <FontAwesomeIcon
                               icon={faPenFancy}

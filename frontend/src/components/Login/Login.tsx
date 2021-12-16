@@ -86,12 +86,12 @@ export class Login extends React.Component<Props, State> {
           </div>
         </Row>
 
-        <Row className="mb-3 d-flex justify-content-center">
+        {/* <Row className="mb-3 d-flex justify-content-center">
           <div>
             <button type="submit" onClick={() => BonitaService.getCurrentSessionId()}> Current Session </button>
           </div>
         </Row>
-        {/* getUserInformation */}
+
         <Row className="mb-3 d-flex justify-content-center">
           <div>
             <button type="submit" onClick={() => BonitaService.getUserInformation("")}> User Data </button>
@@ -109,7 +109,7 @@ export class Login extends React.Component<Props, State> {
           <div>
             <button type="submit" onClick={() => BonitaService.getActiveCases()}> Active Cases </button>
           </div>
-        </Row>
+        </Row> */}
 
 
       </Container>

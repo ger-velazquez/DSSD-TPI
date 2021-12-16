@@ -81,7 +81,6 @@ class SocietyService {
   }
 
   async generateFolder(id: number) {
-    console.log(id);
     const response = HttpClient.post(
       "api/generate-folder",
       {

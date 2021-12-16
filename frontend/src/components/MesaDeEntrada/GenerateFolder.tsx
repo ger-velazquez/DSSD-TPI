@@ -50,9 +50,7 @@ export class GenerateFolder extends React.Component<Props, State> {
   async componentDidMount() {
     const activeCases = await BonitaService.getActiveCases();
     const collectionOfActiveCasesId = BonitaService.filterCasesId(activeCases).toString();
-    // console.log("FILTRADOS");
-    // console.log(collectionOfActiveCasesId);
-    // enviar request a backend, obteniendo el array de las sociedades con ese caseId y renderizandolos.
+
     const response: SocietyRegistrationWithForm[] | any = await SocietyService.getPendingForms(collectionOfActiveCasesId, ProcessStep.generateFolder);
     if (response) {
       const updatedPendingForms = response;

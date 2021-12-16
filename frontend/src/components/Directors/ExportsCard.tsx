@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Card } from 'react-bootstrap';
 import { DashboardBackendResponseCountry, DashboardBackendResponseCountryLanguage } from '../../interfaces/SocietyRegistrationInterfaces';
 import { GenericCard } from '../Generic/GenericCard';
+import { GenericDivider } from '../Generic/GenericDivider';
 
 export interface Props {
   exports: DashboardBackendResponseCountry[]
@@ -20,13 +21,13 @@ export class ExportsCard extends React.Component<Props, State> {
 
     return (
       <>
-        <GenericCard classes="p-3">
+        <GenericCard classes="p-3 text-left m-3">
           <Card.Header className="text-center">
             <h4>
               Exportaciones
             </h4>
             <h6>
-              (Casos Archivados)
+              (Casos Completados)
             </h6>
           </Card.Header>
           <Card.Body>
@@ -39,38 +40,44 @@ export class ExportsCard extends React.Component<Props, State> {
                 exports.map((exportData) => {
                   return (
                     <>
-                      <div className="mb-2">
+                      <div className="mb-2 mt-2">
                         <span className="font-weight-bold "> Nombre: </span> {exportData.name}
                       </div>
 
                       <div className="mb-2" >
-                        <span> Cantidad de exportaciones hacia el pais: {exportData.quantity} </span>
+                        <span style={{ textDecoration: 'underline' }}> Cantidad de exportaciones hacia el pais: {exportData.quantity} </span>
                       </div>
 
                       <div className="mb-2" >
-                        <div> Moneda: {exportData.currency}  </div>
+                        <span style={{ textDecoration: 'underline' }}> Moneda:   </span> {exportData.currency}
                       </div>
 
                       <div className="mb-2" >
-                        <span> Capital: {exportData.capital} </span>
+                        <span style={{ textDecoration: 'underline' }}> Capital:  </span> {exportData.capital}
                       </div>
 
                       <div className="mb-1" >
-                        <span> Lenguas: </span>
+                        <span style={{ textDecoration: 'underline' }}> Lenguas (Ingles): </span>
                       </div>
                       <div>
-                        {
-                          exportData.languages.map((languageData) => {
-                            return (
-                              <>
-                                <div className="mb-1" >
-                                  {languageData.name}
-                                </div>
-                              </>
-                            )
-                          })
-                        }
+                        <ul>
+
+
+                          {
+                            exportData.languages.map((languageData) => {
+                              return (
+                                <>
+                                  <li className="mb-1" >
+                                    {languageData.name}
+                                  </li>
+
+                                </>
+                              )
+                            })
+                          }
+                        </ul>
                       </div>
+                      <GenericDivider />
                     </>
                   )
                 })

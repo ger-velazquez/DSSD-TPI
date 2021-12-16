@@ -7,6 +7,8 @@ import { GenericCard } from '../Generic/GenericCard';
 
 export interface Props {
   completedCases: DashboardBackendResponseCompletedCases;
+  handleModal: (societyName: string) => void;
+
 }
 
 export interface State { }
@@ -22,10 +24,10 @@ export class CompletedCasesCard extends React.Component<Props, State> {
 
     return (
       <>
-        <GenericCard classes="p-3 text-left">
+        <GenericCard classes="p-3 text-left m-3">
           <Card.Header className="text-center">
             <h4>
-              Casos Archivados
+              Casos Completados
             </h4>
             <h6>
               (Actuales)
@@ -34,11 +36,11 @@ export class CompletedCasesCard extends React.Component<Props, State> {
           </Card.Header>
           <Card.Body>
             <div className="mb-2 mt-4">
-              <span className="font-weight-bold "> Cantidad de Casos archivados: </span> {count}
+              <span className="font-weight-bold "> Cantidad de Casos: </span> {count}
             </div>
 
             <div className="mb-2">
-              <span className="font-weight-bold "> Tiempo en minutos: </span> {total_minutes}
+              <span className="font-weight-bold "> Tiempo total de resolucion en minutos: </span> {total_minutes}
             </div>
 
             <div className="mb-2">
@@ -50,13 +52,13 @@ export class CompletedCasesCard extends React.Component<Props, State> {
                 <Col>
                   <div className=" text-left pb-2">
                     <div>
-                      <span className="font-weight-bold "> Sociedades archivadas: </span>
+                      <span className="font-weight-bold "> Sociedades completadas: </span>
                     </div>
                   </div>
                   {
                     list_completed.map((societyName: string) => {
                       return (
-                        <div className="mb-1" style={{ display: 'flex', flexDirection: 'row' }}>
+                        <div onClick={() => this.props.handleModal(societyName)} className="mb-1" style={{ display: 'flex', flexDirection: 'row' }}>
                           <div className="pr-2">
                             <FontAwesomeIcon
                               icon={faFileArchive}

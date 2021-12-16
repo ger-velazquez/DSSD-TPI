@@ -44,8 +44,6 @@ export class DirectorsHomepage extends React.Component<Props, State> {
   }
 
   async getSocietyData(societyName: string) {
-
-    alert("VOY")
     const response = await SocietyService.getSocietyByCondition(societyName, SocietySearchConditions.societyName);
     this.setState({
       currentSociety: response[0],
@@ -61,11 +59,7 @@ export class DirectorsHomepage extends React.Component<Props, State> {
       return null;
     }
 
-    console.log(this.state.dashboardData);
-
-
     const { info_completed_cases, info_entrada_escribano, info_exports } = this.state.dashboardData!;
-
 
     return (
       <>
@@ -83,6 +77,7 @@ export class DirectorsHomepage extends React.Component<Props, State> {
 
             <CompletedCasesCard
               completedCases={info_completed_cases}
+              handleModal={(societyName: string) => this.getSocietyData(societyName)}
             />
 
             <ExportsCard
