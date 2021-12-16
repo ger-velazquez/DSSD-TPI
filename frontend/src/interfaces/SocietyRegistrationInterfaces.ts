@@ -16,7 +16,8 @@ export enum SocietyRegistrationPaths {
 export enum SocietySearchConditions {
   id= "id",
   hash = "hash",
-  fileNumber = "file_number"
+  fileNumber = "file_number",
+  societyName = "society_name"
 }
 
 export interface ManagePendingForms {
@@ -81,9 +82,38 @@ export interface PendingFormRejected {
   registrationId: number;
   numberOfHoursForResend?: number;
 }
-// export interface ManageCollectionInterface {
-//   collectionId: number;
-//   collection: Array<any>;
-//   description: JSX.Element;
-//   handleUpdateStatus: (id: number, operation: ManageCollectionActions) => void;
-// }
+
+export interface DashboardBackendResponseCountryLanguage {
+  code: string;
+  name: string;
+}
+
+export interface DashboardBackendResponseCountry {
+  name: string;
+  quantity: number;
+  currency: string;
+  capital: string;
+  languages: DashboardBackendResponseCountryLanguage[]
+}
+
+export interface DashboardBackendResponseNotary {
+  count_entrada: string;
+  list_entrada: string[];
+  count_escribano: string;
+  list_escribano: string[];
+}
+
+export interface DashboardBackendResponseCompletedCases {
+  count: string;
+  total_minutes: string;
+  average: string;
+  list_completed: string[];
+}
+
+
+
+export interface DashboardBackendResponse {
+  info_entrada_escribano: DashboardBackendResponseNotary;
+  info_completed_cases: DashboardBackendResponseCompletedCases;
+  info_exports: DashboardBackendResponseCountry[]
+}
